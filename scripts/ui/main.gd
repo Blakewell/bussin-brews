@@ -763,7 +763,9 @@ func _show_results() -> void:
 
 	var row := _foot_row()
 	if GameState.is_game_over():
-		_button("The truck is out of gas money. Start over", row, _show_title, true)
+		_button("The truck is out of gas money. Start over", row, func():
+			_difficulty = "easy"
+			_show_title(), true)
 	else:
 		_button("Next day →", row, _show_briefing, true)
 
