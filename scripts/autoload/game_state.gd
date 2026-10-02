@@ -253,3 +253,90 @@ func _pick_chatter(shift: Dictionary, rng: RandomNumberGenerator) -> Dictionary:
 		return {}
 	var pool: Array = Content.dialogue[best].chat
 	return {"generation": best, "count": shift.chats, "line": pool[rng.randi() % pool.size()]}
+
+
+# --- saving ----------------------------------------------------------------
+# One save slot, written at the end of each day (a clean boundary: nothing is mid-animation).
+# Today's weather and headlines are rebuilt from the seed, so they aren't stored.
+
+var save_path := "user://savegame.json"  ## tests point this somewhere else so they never touch a real save
+const SAVE_VERSION := 1
+const SAVED_HISTORY_DAYS := 30
+
+
+func has_save() -> bool:
+	return not save_summary().is_empty()
+
+
+## {day, cash, difficulty} for the title screen, or {} when there is no usable save.
+func save_summary() -> Dictionary:
+	var data = _read_save()
+	if data == null:
+		return {}
+	return {"day": int(data.day), "cash": float(data.cash), "difficulty": str(data.difficulty)}
+
+
+## `extra` is the UI's own state (chosen spot, prices, stock), returned as-is by load_game().
+func save_game(extra: Dictionary = {}) -> bool:
+	var trimmed: Array = []
+	for r in history.slice(maxi(0, history.size() - SAVED_HISTORY_DAYS)):
+		var c: Dictionary = r.duplicate()
+		for heavy in ["shift", "quip", "chatter"]:
+			c.erase(heavy)
+		trimmed.append(c)
+	var data := {
+		"version": SAVE_VERSION, "saved_at": int(Time.get_unix_time_from_system()),
+		"cash": cash, "start_cash": start_cash, "difficulty": difficulty, "day": day,
+		"reputation": reputation, "run_seed": run_seed, "history": trimmed, "extra": extra,
+	}
+	# Write to a temp file and rename, so a crash mid-write can't corrupt the existing save.
+	var tmp := save_path + ".tmp"
+	var f := FileAccess.open(tmp, FileAccess.WRITE)
+	if f == null:
+		push_warning("Could not write save: %s" % error_string(FileAccess.get_open_error()))
+		return false
+	f.store_string(JSON.stringify(data))
+	f.close()
+	return DirAccess.rename_absolute(ProjectSettings.globalize_path(tmp), ProjectSettings.globalize_path(save_path)) == OK
+
+
+## Restores the saved run. Returns the UI's `extra` dictionary, or null if there is nothing usable.
+func load_game() -> Variant:
+	var data = _read_save()
+	if data == null:
+		return null
+	difficulty = str(data.difficulty)
+	start_cash = float(data.start_cash)
+	cash = float(data.cash)
+	day = int(data.day)
+	reputation = float(data.reputation)
+	run_seed = int(data.run_seed)
+	history = data.history
+	begin_day()
+	var extra = data.get("extra", {})
+	return extra if extra is Dictionary else {}
+
+
+func delete_save() -> void:
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(save_path))
+
+
+## Parsed save, or null when missing, unreadable, from another version, or missing fields.
+func _read_save() -> Variant:
+	if not FileAccess.file_exists(save_path):
+		return null
+	var f := FileAccess.open(save_path, FileAccess.READ)
+	if f == null:
+		return null
+	var json := JSON.new()
+	if json.parse(f.get_as_text()) != OK:  # a damaged file is just "no save", without error spam
+		return null
+	var data = json.data
+	if not (data is Dictionary) or int(data.get("version", -1)) != SAVE_VERSION:
+		return null
+	for key in ["cash", "start_cash", "difficulty", "day", "reputation", "run_seed", "history"]:
+		if not data.has(key):
+			return null
+	if not (data.history is Array):
+		return null
+	return data

@@ -213,8 +213,8 @@ func _weather_label() -> String:
 
 func _show_title() -> void:
 	_reset()
-	_make_scene(300, true, 0.35, "school", "sunny")
-	_label("Bussin Brews", 54).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_make_scene(250, true, 0.35, "school", "sunny")
+	_label("Bussin Brews", 50).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_label("A traveling drink truck. Real prices. Real weather. Real drama.", 20, Palette.MUTED).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	var card := _card(null, Palette.LAVENDER.lerp(Palette.BG, 0.5))
 	_label("Choose your start", 20, Palette.TEXT, card)
@@ -238,7 +238,56 @@ func _show_title() -> void:
 		_mode_buttons.append(b)
 	blurb.text = Content.difficulty(_difficulty).blurb
 	_label("Prices follow the real Consumer Price Index, starting January 2026. Keyboard: 1, 2, 3 pick a mode; Enter starts.", 15, Palette.MUTED, card)
-	_button("Open for business", _foot_row(), _start_game, true)
+
+	var saved := GameState.save_summary()
+	if saved.is_empty():
+		_button("Open for business", _foot_row(), _start_game, true)
+	else:
+		var d := Content.difficulty(saved.difficulty)
+		_label("Saved game: day %d · cash %s · %s" % [saved.day, _money(saved.cash), d.label], 16, Palette.MUTED, _footer)
+		var row := _foot_row()
+		_button("New game", row, _confirm_new_game)
+		_button("Continue", row, _continue_game, true)
+
+
+func _confirm_new_game() -> void:
+	var dlg := ConfirmationDialog.new()
+	dlg.title = "Start a new game?"
+	dlg.dialog_text = "This erases your saved game."
+	dlg.ok_button_text = "Erase and start"
+	dlg.cancel_button_text = "Keep my save"
+	dlg.confirmed.connect(func():
+		GameState.delete_save()
+		_start_game())
+	dlg.canceled.connect(dlg.queue_free)
+	dlg.confirmed.connect(dlg.queue_free)
+	add_child(dlg)
+	dlg.popup_centered()
+
+
+func _continue_game() -> void:
+	var extra = GameState.load_game()
+	if extra == null:
+		_blurb.text = "Couldn't read the saved game. Start a new one."
+		return
+	_on_title = false
+	_plan_loc = str(extra.get("plan_loc", "school"))
+	_prices.clear()
+	_servings.clear()
+	# JSON turns whole numbers into floats, so restore the types the UI expects.
+	for id in extra.get("prices", {}):
+		_prices[id] = float(extra.prices[id])
+	for id in extra.get("servings", {}):
+		_servings[id] = int(extra.servings[id])
+	_show_briefing()
+
+
+## Saves at the end of each day, or clears the save when the run is over.
+func _autosave() -> void:
+	if GameState.is_game_over():
+		GameState.delete_save()
+	else:
+		GameState.save_game({"plan_loc": _plan_loc, "prices": _prices, "servings": _servings})
 
 
 func _start_game() -> void:
@@ -259,7 +308,10 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		KEY_2, KEY_KP_2: idx = 1
 		KEY_3, KEY_KP_3: idx = 2
 		KEY_ENTER, KEY_KP_ENTER:
-			_start_game()
+			if GameState.has_save():
+				_continue_game()
+			else:
+				_start_game()
 			get_viewport().set_input_as_handled()
 			return
 	if idx >= 0 and idx < Content.difficulties.size():
@@ -714,6 +766,7 @@ func _upsell(treat_id: String) -> void:
 
 func _show_results() -> void:
 	_reset()
+	_autosave()
 	var r := _last_result
 	var prev := {}
 	if GameState.history.size() >= 2:
@@ -794,6 +847,8 @@ func _show_results() -> void:
 	_chip(Content.generations[who.generation].label, _gen_color(who.generation), qhead)
 	_label("“%s”" % q.line, 18, Palette.TEXT, qc)
 
+	if not GameState.is_game_over():
+		_label("Progress saved.", 14, Palette.MUTED, _footer)
 	var row := _foot_row()
 	if GameState.is_game_over():
 		_button("The truck is out of gas money. Start over", row, func():
