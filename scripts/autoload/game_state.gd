@@ -109,6 +109,8 @@ func plan_cost(plan: Dictionary) -> float:
 	var total := Content.economy.trip_cost(loc, month()) + float(loc.permit)
 	for o in plan.offers:
 		total += o.servings * Content.economy.serving_cost(Content.drink(o.drink_id), month())
+	for t in plan.get("treats", []):
+		total += t.servings * Content.economy.serving_cost(Content.item(t.item_id), month())
 	return total
 
 
@@ -126,9 +128,16 @@ func begin_shift(plan: Dictionary) -> Shift:
 		offers.append({"drink": d, "price": o.price, "fair": econ.fair_price(d, month()), "stock": o.servings})
 		stock_cost += o.servings * cost_each
 		drink_plan[d.id] = {"stocked": o.servings, "price": o.price, "cost_each": cost_each}
+	var treat_offers: Array = []
+	for t in plan.get("treats", []):
+		var item := Content.item(t.item_id)
+		var cost_each := econ.serving_cost(item, month())
+		treat_offers.append({"treat": item, "price": t.price, "fair": econ.fair_price(item, month()), "stock": t.servings})
+		stock_cost += t.servings * cost_each
+		drink_plan[item.id] = {"stocked": t.servings, "price": t.price, "cost_each": cost_each}
 	var rng := RandomNumberGenerator.new()
 	rng.seed = run_seed + day * 104729
-	var shift := Shift.new(offers, loc, weather, traffic_mult(loc.id), reputation, rng, Content.generations)
+	var shift := Shift.new(offers, loc, weather, traffic_mult(loc.id), reputation, rng, Content.generations, treat_offers)
 	_current = {
 		"shift": shift, "loc": loc, "drink_plan": drink_plan, "stock_cost": stock_cost,
 		"trip": econ.trip_cost(loc, month()), "permit": float(loc.permit), "rng": rng,
@@ -152,7 +161,7 @@ func finish_shift(mode: String = "auto") -> Dictionary:
 	var drinks := {}
 	for id in _current.drink_plan:
 		var dp: Dictionary = _current.drink_plan[id]
-		var n: int = sh.sold.get(id, 0)
+		var n: int = sh.sold.get(id, sh.treats_sold.get(id, 0))
 		drinks[id] = {
 			"stocked": dp.stocked, "sold": n, "price": dp.price, "cost_each": dp.cost_each,
 			"profit": n * dp.price - dp.stocked * dp.cost_each,
@@ -200,19 +209,19 @@ func insights(r: Dictionary) -> Array:
 	var best_profit := -INF
 	for id in r.drinks:
 		var d: Dictionary = r.drinks[id]
-		var drink := Content.drink(id)
+		var drink := Content.item(id)
 		if d.profit > best_profit:
 			best_profit = d.profit
 			best_id = id
 		if d.stocked > 0 and d.sold >= d.stocked:
-			out.append("%s sold out. People wanted more, so stock extra next time." % drink.emoji)
+			out.append("%s sold out. People wanted more, so stock extra next time." % drink.name)
 		elif d.stocked >= 8 and d.sold * 2 < d.stocked:
 			var wasted: float = (d.stocked - d.sold) * d.cost_each
-			out.append("%s only sold %d of %d, about %s of ingredients wasted. Stock fewer, or try another spot." % [drink.emoji, d.sold, d.stocked, "$%.0f" % wasted])
+			out.append("%s only sold %d of %d, about %s of ingredients wasted. Stock fewer, or try another spot." % [drink.name, d.sold, d.stocked, "$%.0f" % wasted])
 	if best_id != "":
-		out.push_front("%s was your money-maker (%s profit)." % [Content.drink(best_id).emoji, "$%.0f" % best_profit])
+		out.push_front("%s was your money-maker (%s profit)." % [Content.item(best_id).name, "$%.0f" % best_profit])
 	if r.shift.lost_to_line > 3:
-		out.append("⏳ %d people gave up on the line. Chatty customers eat up time." % r.shift.lost_to_line)
+		out.append("%d people gave up on the line. Chatty customers and add-on offers eat up time." % r.shift.lost_to_line)
 	return out.slice(0, 4)
 
 

@@ -4,7 +4,6 @@
       "id": "kayden",
       "name": "Kayden",
       "nickname": "Mid",
-      "emoji": "🧢",
       "generation": "gen_z",
       "role": "regular",
       "lines": {
@@ -25,7 +24,6 @@
     {
       "id": "priya",
       "name": "Priya",
-      "emoji": "🧑‍🍳",
       "generation": "millennial",
       "role": "crew",
       "lines": {
@@ -46,7 +44,6 @@
     {
       "id": "dale",
       "name": "Dale",
-      "emoji": "🧔",
       "generation": "gen_x",
       "role": "regular",
       "lines": {
@@ -67,7 +64,6 @@
     {
       "id": "nana_deb",
       "name": "Nana Deb",
-      "emoji": "👵",
       "generation": "boomer",
       "role": "regular",
       "lines": {

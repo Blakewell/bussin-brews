@@ -1,10 +1,57 @@
 {
   "base_month": "2026-01",
   "drinks": [
-    {"id": "iced_matcha", "name": "Iced Matcha Glow-Up", "emoji": "🍵", "tags": ["iced", "fancy", "caffeinated"], "ref_price": 6.50, "ref_cost": 1.90},
-    {"id": "boba", "name": "Brown Sugar Boba", "emoji": "🧋", "tags": ["iced", "sweet"], "ref_price": 6.00, "ref_cost": 1.60},
-    {"id": "lemonade", "name": "Main Character Lemonade", "emoji": "🍋", "tags": ["iced", "sweet"], "ref_price": 4.00, "ref_cost": 0.90},
-    {"id": "hot_cocoa", "name": "Cozy Cocoa", "emoji": "☕", "tags": ["hot", "sweet"], "ref_price": 4.50, "ref_cost": 1.10},
-    {"id": "latte", "name": "Oat Milk Latte", "emoji": "🥛", "tags": ["hot", "fancy", "caffeinated"], "ref_price": 5.75, "ref_cost": 1.70}
+    {
+      "id": "iced_matcha",
+      "name": "Iced Matcha Glow-Up",
+      "tags": [
+        "iced",
+        "fancy",
+        "caffeinated"
+      ],
+      "ref_price": 6.5,
+      "ref_cost": 1.9
+    },
+    {
+      "id": "boba",
+      "name": "Brown Sugar Boba",
+      "tags": [
+        "iced",
+        "sweet"
+      ],
+      "ref_price": 6.0,
+      "ref_cost": 1.6
+    },
+    {
+      "id": "lemonade",
+      "name": "Main Character Lemonade",
+      "tags": [
+        "iced",
+        "sweet"
+      ],
+      "ref_price": 4.0,
+      "ref_cost": 0.9
+    },
+    {
+      "id": "hot_cocoa",
+      "name": "Cozy Cocoa",
+      "tags": [
+        "hot",
+        "sweet"
+      ],
+      "ref_price": 4.5,
+      "ref_cost": 1.1
+    },
+    {
+      "id": "latte",
+      "name": "Oat Milk Latte",
+      "tags": [
+        "hot",
+        "fancy",
+        "caffeinated"
+      ],
+      "ref_price": 5.75,
+      "ref_cost": 1.7
+    }
   ]
 }

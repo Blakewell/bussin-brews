@@ -5,6 +5,9 @@ extends RefCounted
 const ARRIVALS_PER_TRAFFIC := 2.4  ## shift arrivals per point of base_traffic
 const WALK_AWAY_WEIGHT := 4.0      ## higher means fewer arrivals buy anything
 const SHIFT_CAPACITY := 90.0       ## service slots in a shift; chatty customers use extra
+const UPSELL_BASE := 0.30          ## chance a typical customer adds a treat they'd like
+const UPSELL_TIME := 0.25          ## service slots each add-on offer costs (pushing slows the line)
+const AUTO_UPSELL_SKILL := 0.6     ## autopilot staff are less persuasive than you
 
 
 static func price_factor(price: float, fair: float, sensitivity: float) -> float:

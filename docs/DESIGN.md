@@ -40,6 +40,9 @@ Examples: School Pickup Line, Beach Boardwalk, Downtown Office Park, Stadium Lot
 ### Truck customization
 Decorate the truck with unlockable items (string lights, plants, stickers, signage, a tiny speaker). Decor gives small bonuses to certain crowds (fairy lights for evening spots, plants for the farmers market) and is mostly there for personality.
 
+### Bakery case (upsells)
+After a drink sells, offer one treat: brownie, cupcake, protein ball, cookie or muffin. Acceptance depends on the customer's generation, how well the treat pairs with their drink (cookies with hot drinks, protein balls with iced coffee), and price. Offers cost a little service time, so spamming slows the line. Autopilot sells treats too, but less persuasively than hands-on play.
+
 ### Menu and ingredients
 Drinks are recipes made of ingredients (base, flavor, topping). Ingredients have a cost that the economy can move, and some can run out. Start with a fixed menu. Mixable custom drinks are a later milestone.
 
@@ -105,6 +108,6 @@ All player-facing dialogue is pulled from data files with **tags** (greeting, or
 6. **Polish.** Art, audio, save/load, balance.
 
 ## Open questions
-- Art direction: the palette is settled (soothing pastels); is the style placeholder shapes, emoji, or pixel art?
+- Art direction: the palette is settled (soothing pastels) and the UI is text-first, with colored chips instead of icons. Is there room for illustrated portraits later?
 - Desktop only, or touch controls too?
 - Fixed menu to start, or mixable recipes from the beginning?

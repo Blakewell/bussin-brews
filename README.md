@@ -6,7 +6,7 @@ A cozy traveling drink-truck management game built with Godot 4.7. Prices follow
 Open the folder in Godot and press F5. Each day:
 1. **Briefing:** weather, gas price, headlines, and how yesterday went.
 2. **Plan:** pick a spot, then use −/+ to set each drink's price and servings. "Restock from yesterday's sales" adjusts stock to what sold.
-3. **Serve customers** one at a time (space serves what they asked for, or suggest something else, chat, or turn them away), or **breeze through the day** on autopilot.
+3. **Serve customers** one at a time (space serves what they asked for, or suggest something else, chat, or turn them away). After each drink you can **upsell a bakery treat** (brownie, cupcake, protein ball, cookie, muffin) matched to who they are and what they bought. Or **breeze through the day** on autopilot, where treats still sell but less often.
 4. **Wrap-up:** today vs yesterday, drink by drink, plus lessons for tomorrow.
 
 ## Development

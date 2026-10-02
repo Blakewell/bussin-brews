@@ -3,7 +3,6 @@
     {
       "id": "school",
       "name": "School Pickup Line",
-      "emoji": "🏫",
       "miles": 10,
       "permit": 0,
       "base_traffic": 38,
@@ -25,7 +24,6 @@
     {
       "id": "beach",
       "name": "Beach Boardwalk",
-      "emoji": "🏖️",
       "miles": 40,
       "permit": 25,
       "base_traffic": 62,
@@ -47,7 +45,6 @@
     {
       "id": "office",
       "name": "Downtown Office Park",
-      "emoji": "🏢",
       "miles": 20,
       "permit": 15,
       "base_traffic": 45,

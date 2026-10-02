@@ -23,6 +23,9 @@ Boomers being the chattiest and Gen X chatting more than Gen Z is a **game-desig
 - `tag_fit` multipliers are directional estimates from the qualitative findings, not measured values.
 - I read these numbers from search-result summaries, not the original studies. Verify before quoting them publicly.
 
+## Treat preferences
+Which generation likes which treat (`gen_fit` in `data/treats.json`) is a **design estimate**, not survey data: muffins and cookies skew older, cupcakes and brownies skew younger, protein balls skew millennial. Pairings (`pairs_with`) are also design choices. Treat prices follow the same CPI scaling as drinks.
+
 ## Language
 Per game, the player picks:
 - **Generational:** each generation, and each named character, speaks in their own era's slang (`data/dialogue.json`, `data/characters.json`).

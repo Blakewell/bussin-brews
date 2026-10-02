@@ -29,7 +29,12 @@ func _ready() -> void:
 		if main._customer.is_empty():
 			break
 		main._serve(main._customer.craving, true)
+		if main._upsell_pending:
+			main._upsell(main._shift.treat_offers[i % 5].treat.id)
 	await _shot(out, "7_service")
+	main._serve(main._customer.craving, true)
+	await _shot(out, "7b_upsell")
+	main._next_customer()
 	main._shift.auto_finish()
 	main._last_result = GameState.finish_shift("hands-on")
 	main._show_results()

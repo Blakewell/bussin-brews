@@ -12,6 +12,7 @@ func _init() -> void:
 	_check_demand(content)
 	_check_generations(content)
 	_check_shift(content)
+	_check_upsell(content)
 	print("")
 	print("FAILED: %d" % failures if failures > 0 else "All sim tests passed")
 	quit(1 if failures > 0 else 0)
@@ -181,3 +182,65 @@ func _check_shift(c) -> void:
 	rng_a.seed = 5
 	var auto := Demand.simulate_shift(_offers(c), c.location("school"), c.weather.types["sunny"], 1.0, 1.0, rng_a, c.generations)
 	ok(auto.served > 0 and auto.tips > 0.0, "autopilot shift completes with sales and tips")
+
+
+func _treat_offers(c, stock := 50) -> Array:
+	var out := []
+	for t in c.treats:
+		out.append({"treat": t, "price": c.economy.fair_price(t, "2026-01"), "fair": c.economy.fair_price(t, "2026-01"), "stock": stock})
+	return out
+
+
+func _check_upsell(c) -> void:
+	print("Upsell")
+	# Preference by generation: muffins go to boomers, protein balls to millennials.
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 3
+	var shift := Shift.new(_offers(c), c.location("beach"), c.weather.types["cloudy"], 1.0, 1.0, rng, c.generations, _treat_offers(c))
+	var boomer := {"gen_id": "boomer", "craving": "hot_cocoa", "sold_drink": "hot_cocoa"}
+	var millennial := {"gen_id": "millennial", "craving": "iced_matcha", "sold_drink": "iced_matcha"}
+	ok(shift.treat_chance(boomer, "muffin") > shift.treat_chance(boomer, "protein_ball"), "boomers favor muffins over protein balls")
+	ok(shift.treat_chance(millennial, "protein_ball") > shift.treat_chance(millennial, "muffin"), "millennials favor protein balls over muffins")
+	ok(shift.treat_chance(boomer, "cookie") > shift.treat_chance({"gen_id": "boomer", "craving": "lemonade", "sold_drink": "lemonade"}, "cookie"), "cookies pair better with a hot drink")
+
+	# Pricing a treat higher cuts the chance.
+	var pricey := _treat_offers(c)
+	for t in pricey:
+		t.price = t.fair * 2.0
+	var s2 := Shift.new(_offers(c), c.location("beach"), c.weather.types["cloudy"], 1.0, 1.0, rng, c.generations, pricey)
+	ok(s2.treat_chance(boomer, "muffin") < shift.treat_chance(boomer, "muffin"), "doubling a treat's price lowers acceptance")
+
+	# Hands-on beats autopilot, since you can pick the right treat and autopilot is less persuasive.
+	var hand_rev := 0.0
+	var auto_rev := 0.0
+	var time_hand := 0.0
+	for seed_value in 20:
+		var ra := RandomNumberGenerator.new()
+		ra.seed = seed_value
+		var sa := Shift.new(_offers(c), c.location("beach"), c.weather.types["cloudy"], 1.0, 1.0, ra, c.generations, _treat_offers(c))
+		sa.auto_finish()
+		auto_rev += sa.result.treat_revenue
+		var rh := RandomNumberGenerator.new()
+		rh.seed = seed_value
+		var sh := Shift.new(_offers(c), c.location("beach"), c.weather.types["cloudy"], 1.0, 1.0, rh, c.generations, _treat_offers(c))
+		var cu := sh.next_customer()
+		while not cu.is_empty():
+			if sh.serve(cu, cu.craving, true).sold:
+				var best := ""
+				var best_p := 0.0
+				for id in sh.treat_stock:
+					var p: float = sh.treat_chance(cu, id)
+					if sh.treat_stock[id] > 0 and p > best_p:
+						best_p = p
+						best = id
+				if best != "":
+					sh.upsell(cu, best)
+			cu = sh.next_customer()
+		hand_rev += sh.result.treat_revenue
+		time_hand += sh.used
+	ok(auto_rev > 0.0, "autopilot still sells some treats ($%.0f over 20 days)" % auto_rev)
+	ok(hand_rev > auto_rev, "a good hand-played upsell beats autopilot ($%.0f vs $%.0f)" % [hand_rev, auto_rev])
+
+	# Out of stock treats can't be sold.
+	var s3 := Shift.new(_offers(c), c.location("beach"), c.weather.types["cloudy"], 1.0, 1.0, rng, c.generations, _treat_offers(c, 0))
+	ok(not s3.has_treats_in_stock() and not s3.upsell(boomer, "muffin").accepted, "no stock, no upsell")

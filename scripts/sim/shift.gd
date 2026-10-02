@@ -9,15 +9,18 @@ var location: Dictionary
 var weather: Dictionary
 var generations: Dictionary
 var rng: RandomNumberGenerator
+var treat_offers: Array
 var stock := {}
 var sold := {}
+var treat_stock := {}
+var treats_sold := {}
 var result := {}
 var used := 0.0          ## service slots consumed (chatty customers use extra)
 var arrivals := 0
 var remaining := 0       ## arrivals not yet processed
 
 
-func _init(offer_list: Array, loc: Dictionary, wx: Dictionary, traffic_mult: float, reputation: float, random: RandomNumberGenerator, gens: Dictionary) -> void:
+func _init(offer_list: Array, loc: Dictionary, wx: Dictionary, traffic_mult: float, reputation: float, random: RandomNumberGenerator, gens: Dictionary, treat_list: Array = []) -> void:
 	offers = offer_list
 	location = loc
 	weather = wx
@@ -25,11 +28,15 @@ func _init(offer_list: Array, loc: Dictionary, wx: Dictionary, traffic_mult: flo
 	rng = random
 	arrivals = int(round(loc.base_traffic * Demand.ARRIVALS_PER_TRAFFIC * wx.traffic * traffic_mult * reputation))
 	remaining = arrivals
+	treat_offers = treat_list
 	for o in offers:
 		stock[o.drink.id] = int(o.stock)
 		sold[o.drink.id] = 0
+	for t in treat_offers:
+		treat_stock[t.treat.id] = int(t.stock)
+		treats_sold[t.treat.id] = 0
 	result = {
-		"sold": sold, "revenue": 0.0, "tips": 0.0, "chats": 0, "arrivals": arrivals, "served": 0,
+		"sold": sold, "treats_sold": treats_sold, "treat_revenue": 0.0, "upsell_attempts": 0, "upsell_declined": 0, "revenue": 0.0, "tips": 0.0, "chats": 0, "arrivals": arrivals, "served": 0,
 		"lost_to_stockout": 0, "lost_to_line": 0, "walked_away": 0, "declined": 0, "skipped": 0, "cut_short": 0,
 		"served_by_gen": {}, "tips_by_gen": {}, "chats_by_gen": {},
 	}
@@ -111,6 +118,7 @@ func serve(c: Dictionary, drink_id: String, engage_chat := true) -> Dictionary:
 	_add(result.served_by_gen, c.gen_id, 1)
 	out.sold = true
 	out.price = o.price
+	c["sold_drink"] = drink_id
 
 	var tip_chance: float = gen.tip_chance
 	if c.wants_chat:
@@ -131,6 +139,66 @@ func serve(c: Dictionary, drink_id: String, engage_chat := true) -> Dictionary:
 	return out
 
 
+func treat_offer(treat_id: String) -> Dictionary:
+	for t in treat_offers:
+		if t.treat.id == treat_id:
+			return t
+	return {}
+
+
+func has_treats_in_stock() -> bool:
+	for id in treat_stock:
+		if treat_stock[id] > 0:
+			return true
+	return false
+
+
+## Chance this customer adds this treat after buying a drink: generation taste, how well it
+## pairs with their drink, and the price.
+func treat_chance(c: Dictionary, treat_id: String) -> float:
+	var t := treat_offer(treat_id)
+	var p: float = Demand.UPSELL_BASE * float(t.treat.gen_fit.get(c.gen_id, 1.0))
+	var drink: Dictionary = offer(c.get("sold_drink", c.craving)).drink
+	for tag in drink.tags:
+		p *= float(t.treat.pairs_with.get(tag, 1.0))
+	p *= Demand.price_factor(t.price, t.fair, location.price_sensitivity)
+	return clampf(p, 0.02, 0.9)
+
+
+## Offer a treat. Each offer costs a little service time, so spamming slows the line.
+func upsell(c: Dictionary, treat_id: String, skill := 1.0) -> Dictionary:
+	var out := {"accepted": false, "price": 0.0}
+	if treat_stock.get(treat_id, 0) <= 0:
+		return out
+	result.upsell_attempts += 1
+	used += Demand.UPSELL_TIME
+	if rng.randf() < treat_chance(c, treat_id) * skill:
+		var t := treat_offer(treat_id)
+		treat_stock[treat_id] -= 1
+		treats_sold[treat_id] += 1
+		result.revenue += t.price
+		result.treat_revenue += t.price
+		out.accepted = true
+		out.price = t.price
+	else:
+		result.upsell_declined += 1
+	return out
+
+
+## What an autopilot cashier does: suggest the treat this customer is likeliest to take.
+func auto_upsell(c: Dictionary) -> void:
+	var best := ""
+	var best_p := 0.1
+	for id in treat_stock:
+		if treat_stock[id] > 0:
+			var p := treat_chance(c, id)
+			if p > best_p:
+				best_p = p
+				best = id
+	if best != "":
+		upsell(c, best, Demand.AUTO_UPSELL_SKILL)
+
+
 func skip(_c: Dictionary) -> void:
 	result.skipped += 1
 
@@ -139,7 +207,8 @@ func skip(_c: Dictionary) -> void:
 func auto_finish() -> void:
 	var c := next_customer()
 	while not c.is_empty():
-		serve(c, c.craving, true)
+		if serve(c, c.craving, true).sold:
+			auto_upsell(c)
 		c = next_customer()
 
 

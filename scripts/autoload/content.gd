@@ -2,6 +2,7 @@ extends Node
 ## Loads all JSON game data once. No game content lives in scripts.
 
 var drinks: Array = []
+var treats: Array = []
 var drink_base_month := ""
 var locations: Array = []
 var weather: Dictionary = {}
@@ -18,6 +19,7 @@ func _ready() -> void:
 	var drink_data := _load("res://data/drinks.json")
 	drinks = drink_data.drinks
 	drink_base_month = drink_data.base_month
+	treats = _load("res://data/treats.json").treats
 	locations = _load("res://data/locations.json").locations
 	weather = _load("res://data/weather.json")
 	var event_data := _load("res://data/events.json")
@@ -34,6 +36,17 @@ func drink(id: String) -> Dictionary:
 	for d in drinks:
 		if d.id == id:
 			return d
+	return {}
+
+
+## Any sellable item: a drink or a bakery treat.
+func item(id: String) -> Dictionary:
+	var d := drink(id)
+	if not d.is_empty():
+		return d
+	for t in treats:
+		if t.id == id:
+			return t
 	return {}
 
 

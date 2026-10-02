@@ -22,6 +22,14 @@
     "decline": [
       "Hmm, not feeling that. I'll pass.",
       "Nah, that's giving mid. I'm good."
+    ],
+    "upsell_yes": [
+      "Ooh, yes, add that.",
+      "Say less, put it on there."
+    ],
+    "upsell_no": [
+      "I'm good, thanks.",
+      "Nah, I'm broke lol."
     ]
   },
   "millennial": {
@@ -47,6 +55,14 @@
     "decline": [
       "Oh, I'm good, thanks. Maybe next time!",
       "Ehh, not really my vibe. Rain check?"
+    ],
+    "upsell_yes": [
+      "Sure, why not. Treat yourself, right?",
+      "Okay, you got me."
+    ],
+    "upsell_no": [
+      "Oh, I'm trying to be good today.",
+      "I'm good, but thanks!"
     ]
   },
   "gen_x": {
@@ -72,6 +88,14 @@
     "decline": [
       "Nah. Forget it.",
       "That? No. I'll pass."
+    ],
+    "upsell_yes": [
+      "Fine. Sure.",
+      "Yeah, okay. Why not."
+    ],
+    "upsell_no": [
+      "Nah, just the drink.",
+      "Pass."
     ]
   },
   "boomer": {
@@ -98,6 +122,14 @@
     "decline": [
       "Oh, no thank you, I'll stick with what I asked for.",
       "That's not what I wanted, sweetheart."
+    ],
+    "upsell_yes": [
+      "Oh, that sounds lovely, dear.",
+      "Well, twist my arm!"
+    ],
+    "upsell_no": [
+      "Oh no, I'll ruin my dinner.",
+      "Not today, sweetheart."
     ]
   }
 }
