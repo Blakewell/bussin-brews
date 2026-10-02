@@ -1,6 +1,6 @@
-# Hot Dog Stand
+# Bussin Brews
 
-A hot dog stand management game built with Godot 4.
+A fancy drinks stand management game built with Godot 4.
 
 ## Running
 

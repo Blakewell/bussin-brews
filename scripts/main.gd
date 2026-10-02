@@ -2,4 +2,4 @@ extends Control
 
 
 func _ready() -> void:
-	print("Hot Dog Stand is open for business!")
+	print("Bussin Brews is open for business!")
