@@ -2,10 +2,13 @@
 
 A cozy traveling drink-truck management game built with Godot 4.7. Prices follow the real Consumer Price Index, weather and location change what sells, and customers from four generations buy, tip and talk differently.
 
+## Look and feel
+An illustrated street scene in the spirit of Tiny Bookshop: your truck, a backdrop per location (school, beach, office park), weather and time of day, and flat-style people who walk up to the window, order, take their cup and leave. Each generation has its own look. Everything is drawn from shapes in code (`scripts/ui/truck_scene.gd`, `person.gd`) as a stand-in, so real sprite art can replace it later without touching game logic.
+
 ## Playing
-Open the folder in Godot and press F5. Each day:
+Open the folder in Godot and press F5. Pick a start: **Easy** ($1,000), **Medium** ($500) or **Hard** ($100). Each day:
 1. **Briefing:** weather, gas price, headlines, and how yesterday went.
-2. **Plan:** pick a spot, then use −/+ to set each drink's price and servings. "Restock from yesterday's sales" adjusts stock to what sold.
+2. **Plan:** pick a spot on the left; on the right, the **Drinks** and **Baked goods** tabs let you use −/+ to set each item's price and servings. "Restock from yesterday's sales" adjusts stock to what sold.
 3. **Serve customers** one at a time (space serves what they asked for, or suggest something else, chat, or turn them away). After each drink you can **upsell a bakery treat** (brownie, cupcake, protein ball, cookie, muffin) matched to who they are and what they bought. Or **breeze through the day** on autopilot, where treats still sell but less often.
 4. **Wrap-up:** today vs yesterday, drink by drink, plus lessons for tomorrow.
 

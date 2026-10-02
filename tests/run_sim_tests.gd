@@ -13,6 +13,7 @@ func _init() -> void:
 	_check_generations(content)
 	_check_shift(content)
 	_check_upsell(content)
+	_check_difficulty(content)
 	print("")
 	print("FAILED: %d" % failures if failures > 0 else "All sim tests passed")
 	quit(1 if failures > 0 else 0)
@@ -244,3 +245,12 @@ func _check_upsell(c) -> void:
 	# Out of stock treats can't be sold.
 	var s3 := Shift.new(_offers(c), c.location("beach"), c.weather.types["cloudy"], 1.0, 1.0, rng, c.generations, _treat_offers(c, 0))
 	ok(not s3.has_treats_in_stock() and not s3.upsell(boomer, "muffin").accepted, "no stock, no upsell")
+
+
+func _check_difficulty(c) -> void:
+	print("Difficulty")
+	var cash := {}
+	for d in c.difficulties:
+		cash[d.id] = d.cash
+	ok(cash.get("easy") == 1000 and cash.get("medium") == 500 and cash.get("hard") == 100, "easy/medium/hard start with $1000/$500/$100")
+	ok(c.difficulty("nonsense").id == "easy", "unknown difficulty falls back to easy")

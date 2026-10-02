@@ -18,6 +18,7 @@ var result := {}
 var used := 0.0          ## service slots consumed (chatty customers use extra)
 var arrivals := 0
 var remaining := 0       ## arrivals not yet processed
+var events: Array = []   ## people who didn't buy: {kind, gen_id}; drain with drain_events()
 
 
 func _init(offer_list: Array, loc: Dictionary, wx: Dictionary, traffic_mult: float, reputation: float, random: RandomNumberGenerator, gens: Dictionary, treat_list: Array = []) -> void:
@@ -42,6 +43,13 @@ func _init(offer_list: Array, loc: Dictionary, wx: Dictionary, traffic_mult: flo
 	}
 
 
+## People who passed by without buying since the last call (for the street scene).
+func drain_events() -> Array:
+	var out := events
+	events = []
+	return out
+
+
 func progress() -> float:
 	return 1.0 - float(remaining) / maxf(arrivals, 1)
 
@@ -60,6 +68,7 @@ func next_customer() -> Dictionary:
 		remaining -= 1
 		if used >= Demand.SHIFT_CAPACITY:
 			result.lost_to_line += 1
+			events.append({"kind": "line", "gen_id": ""})
 			continue
 		var gen_id := Demand.roll_generation(location.generations, rng)
 		var gen: Dictionary = generations[gen_id]
@@ -75,9 +84,11 @@ func next_customer() -> Dictionary:
 		var desire: float = total_all * gen.buy_rate
 		if rng.randf() >= desire / (desire + Demand.WALK_AWAY_WEIGHT):
 			result.walked_away += 1
+			events.append({"kind": "walked_away", "gen_id": gen_id})
 			continue
 		if total_stock <= 0.0:
 			result.lost_to_stockout += 1
+			events.append({"kind": "stockout", "gen_id": gen_id})
 			continue
 		var craving := ""
 		var pick := rng.randf() * total_stock

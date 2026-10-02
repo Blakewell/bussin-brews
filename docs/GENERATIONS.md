@@ -27,11 +27,7 @@ Boomers being the chattiest and Gen X chatting more than Gen Z is a **game-desig
 Which generation likes which treat (`gen_fit` in `data/treats.json`) is a **design estimate**, not survey data: muffins and cookies skew older, cupcakes and brownies skew younger, protein balls skew millennial. Pairings (`pairs_with`) are also design choices. Treat prices follow the same CPI scaling as drinks.
 
 ## Language
-Per game, the player picks:
-- **Generational:** each generation, and each named character, speaks in their own era's slang (`data/dialogue.json`, `data/characters.json`).
-- **Gen Z only:** everyone uses Gen Z lines.
-
-Slang lives entirely in data files so it's easy to refresh as it ages.
+Each generation, and each named character, speaks in their own era's slang (`data/dialogue.json`, `data/characters.json`). Slang lives entirely in data files so it's easy to refresh as it ages.
 
 ## Sources
 - Tipping by generation (counter service, sit-down, 20%+ shares): [Fox News on a millennial tipping survey](https://www.foxnews.com/food-drink/millennials-are-the-worst-tippers-new-survey-shows.amp), [Newsweek](https://www.newsweek.com/millennials-are-the-most-anti-tipping-generation-11915915), and [Fox 9 on the 2025 annual tipping poll](https://www.fox9.com/news/tipping-out-of-control-survey-2025)

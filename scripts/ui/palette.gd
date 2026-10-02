@@ -44,6 +44,16 @@ static func make_theme() -> Theme:
 	t.set_color("font_hover_color", "Button", TEXT)
 	t.set_color("font_disabled_color", "Button", MUTED)
 
+	# Tabs (menu categories)
+	t.set_stylebox("tab_selected", "TabContainer", box(SAGE, 12, Color.TRANSPARENT, 10))
+	t.set_stylebox("tab_unselected", "TabContainer", box(BLUE.lerp(BG, 0.55), 12, Color.TRANSPARENT, 10))
+	t.set_stylebox("tab_hovered", "TabContainer", box(BLUE.lerp(BG, 0.3), 12, Color.TRANSPARENT, 10))
+	t.set_stylebox("panel", "TabContainer", box(PANEL, 14, BLUE.lerp(BG, 0.4), 12))
+	t.set_color("font_selected_color", "TabContainer", TEXT)
+	t.set_color("font_unselected_color", "TabContainer", MUTED)
+	t.set_color("font_hovered_color", "TabContainer", TEXT)
+	t.set_font_size("font_size", "TabContainer", 18)
+
 	t.set_stylebox("normal", "LineEdit", box(PANEL, 8, BLUE, 6))
 	t.set_color("font_color", "LineEdit", TEXT)
 	return t

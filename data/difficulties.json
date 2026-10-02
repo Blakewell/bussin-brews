@@ -1,0 +1,22 @@
+{
+  "difficulties": [
+    {
+      "id": "easy",
+      "label": "Easy",
+      "cash": 1000,
+      "blurb": "Room to experiment. Start with $1,000."
+    },
+    {
+      "id": "medium",
+      "label": "Medium",
+      "cash": 500,
+      "blurb": "Choose your first days carefully. Start with $500."
+    },
+    {
+      "id": "hard",
+      "label": "Hard",
+      "cash": 100,
+      "blurb": "One bad day hurts. Start with $100 and a tiny menu."
+    }
+  ]
+}

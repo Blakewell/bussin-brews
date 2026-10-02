@@ -3,6 +3,7 @@ extends Node
 
 var drinks: Array = []
 var treats: Array = []
+var difficulties: Array = []
 var drink_base_month := ""
 var locations: Array = []
 var weather: Dictionary = {}
@@ -20,6 +21,7 @@ func _ready() -> void:
 	drinks = drink_data.drinks
 	drink_base_month = drink_data.base_month
 	treats = _load("res://data/treats.json").treats
+	difficulties = _load("res://data/difficulties.json").difficulties
 	locations = _load("res://data/locations.json").locations
 	weather = _load("res://data/weather.json")
 	var event_data := _load("res://data/events.json")
@@ -48,6 +50,13 @@ func item(id: String) -> Dictionary:
 		if t.id == id:
 			return t
 	return {}
+
+
+func difficulty(id: String) -> Dictionary:
+	for d in difficulties:
+		if d.id == id:
+			return d
+	return difficulties[0]
 
 
 func location(id: String) -> Dictionary:

@@ -1,10 +1,11 @@
 extends Node
 ## Run state: money, day, reputation, the day's weather and news, and the shift runner.
 
-const START_CASH := 1000.0
 const MIN_PLAYABLE_CASH := 25.0
 
-var cash := START_CASH
+var cash := 1000.0
+var start_cash := 1000.0
+var difficulty := "easy"
 var day := 1
 var reputation := 1.0
 var run_seed := 1
@@ -12,13 +13,13 @@ var weather_id := "sunny"
 var headlines: Array = []   ## [{headline, body}] shown in the morning briefing
 var history: Array = []     ## one result dict per finished day
 var _current := {}          ## the shift in progress
-var language_mode := "generational"  ## "generational" (each age group speaks its own slang) or "gen_z" (everyone talks Gen Z)
 
 
-func new_game(seed_value: int = 0, language: String = "generational") -> void:
-	language_mode = language
+func new_game(seed_value: int = 0, difficulty_id: String = "easy") -> void:
+	difficulty = difficulty_id
+	start_cash = float(Content.difficulty(difficulty_id).cash)
 	run_seed = seed_value if seed_value != 0 else int(Time.get_unix_time_from_system())
-	cash = START_CASH
+	cash = start_cash
 	day = 1
 	reputation = 1.0
 	history.clear()
@@ -225,11 +226,6 @@ func insights(r: Dictionary) -> Array:
 	return out.slice(0, 4)
 
 
-## Which voice a generation uses: its own, or Gen Z for everyone in "gen_z" mode.
-func voice_for(generation: String) -> String:
-	return generation if language_mode == "generational" else "gen_z"
-
-
 func _tier(profit: float, satisfaction: float) -> String:
 	if profit >= 250.0 and satisfaction >= 0.9:
 		return "great"
@@ -241,7 +237,7 @@ func _tier(profit: float, satisfaction: float) -> String:
 func _pick_quip(profit: float, satisfaction: float, rng: RandomNumberGenerator) -> Dictionary:
 	var tier := _tier(profit, satisfaction)
 	var who: Dictionary = Content.characters[rng.randi() % Content.characters.size()]
-	var pool: Array = who.lines[tier] if language_mode == "generational" else Content.dialogue.gen_z[tier]
+	var pool: Array = who.lines[tier]
 	return {"character": who, "tier": tier, "line": pool[rng.randi() % pool.size()]}
 
 
@@ -255,5 +251,5 @@ func _pick_chatter(shift: Dictionary, rng: RandomNumberGenerator) -> Dictionary:
 			best_count = shift.chats_by_gen[gen_id]
 	if best.is_empty():
 		return {}
-	var pool: Array = Content.dialogue[voice_for(best)].chat
+	var pool: Array = Content.dialogue[best].chat
 	return {"generation": best, "count": shift.chats, "line": pool[rng.randi() % pool.size()]}

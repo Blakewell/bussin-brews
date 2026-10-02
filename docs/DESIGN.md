@@ -12,6 +12,9 @@ The feel we're after is **Tiny Bookshop**: a cozy, low-stress management game ab
 
 Bussin Brews differs by adding a teen-slang voice, staff drama, and real-world economic pressure. Those layers should add spice without breaking the cozy feel: setbacks are recoverable and failure is gentle.
 
+## Starting modes
+Easy starts with $1,000, Medium with $500, Hard with $100 (`data/difficulties.json`). The default stock on the plan screen scales to the starting cash so Hard begins with a small, affordable menu and no bakery stock.
+
 ## Core loop (one in-game day)
 1. **Morning briefing.** Weather forecast, headlines, gas price, crew mood.
 2. **Plan.** Pick a location, set the menu and prices, buy stock. Fuel cost depends on distance.
@@ -78,7 +81,7 @@ event {
 - **Phase 2 (optional):** pull real numbers where there is a free source, e.g. the national average gas price, and map them onto the fuel multiplier. Headlines in-game stay curated and hand-written so nothing depends on a news API or its licensing.
 
 ### Generations
-Customers come from four generations with data-backed buying, tipping and chatting behavior, and each speaks its own slang (or everyone speaks Gen Z, a per-game setting). See [GENERATIONS.md](GENERATIONS.md).
+Customers come from four generations with data-backed buying, tipping and chatting behavior, and each speaks its own slang. See [GENERATIONS.md](GENERATIONS.md).
 
 ### Lingo
 All player-facing dialogue is pulled from data files with **tags** (greeting, order, praise, complaint, quit) so slang can be swapped out as it ages. Each character has a voice profile (words they favor, words they never use).
