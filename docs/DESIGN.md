@@ -74,6 +74,9 @@ event {
 - **Phase 1:** curated event packs in JSON, written to resemble real headlines, so the game works offline and tests are deterministic.
 - **Phase 2 (optional):** pull real numbers where there is a free source, e.g. the national average gas price, and map them onto the fuel multiplier. Headlines in-game stay curated and hand-written so nothing depends on a news API or its licensing.
 
+### Generations
+Customers come from four generations with data-backed buying, tipping and chatting behavior, and each speaks its own slang (or everyone speaks Gen Z, a per-game setting). See [GENERATIONS.md](GENERATIONS.md).
+
 ### Lingo
 All player-facing dialogue is pulled from data files with **tags** (greeting, order, praise, complaint, quit) so slang can be swapped out as it ages. Each character has a voice profile (words they favor, words they never use).
 

@@ -1,0 +1,10 @@
+{
+  "base_month": "2026-01",
+  "drinks": [
+    {"id": "iced_matcha", "name": "Iced Matcha Glow-Up", "emoji": "🍵", "tags": ["iced", "fancy", "caffeinated"], "ref_price": 6.50, "ref_cost": 1.90},
+    {"id": "boba", "name": "Brown Sugar Boba", "emoji": "🧋", "tags": ["iced", "sweet"], "ref_price": 6.00, "ref_cost": 1.60},
+    {"id": "lemonade", "name": "Main Character Lemonade", "emoji": "🍋", "tags": ["iced", "sweet"], "ref_price": 4.00, "ref_cost": 0.90},
+    {"id": "hot_cocoa", "name": "Cozy Cocoa", "emoji": "☕", "tags": ["hot", "sweet"], "ref_price": 4.50, "ref_cost": 1.10},
+    {"id": "latte", "name": "Oat Milk Latte", "emoji": "🥛", "tags": ["hot", "fancy", "caffeinated"], "ref_price": 5.75, "ref_cost": 1.70}
+  ]
+}

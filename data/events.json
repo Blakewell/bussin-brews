@@ -1,0 +1,15 @@
+{
+  "events": [
+    {"id": "school_fair", "start_day": 4, "duration": 2, "headline": "Spring fair season starts early", "body": "Pickup lines are packed and everybody's thirsty.",
+     "effects": [{"target": "demand_location:school", "mult": 1.5}]},
+    {"id": "heat_dome", "start_day": 55, "duration": 3, "headline": "Heat dome settles over the city", "body": "Anything iced is going to fly.",
+     "effects": [{"target": "weather", "force": "hot"}]},
+    {"id": "festival", "start_day": 40, "duration": 2, "headline": "Boardwalk food festival this weekend", "body": "Huge crowds, but everyone's a critic.",
+     "effects": [{"target": "demand_location:beach", "mult": 1.6}]}
+  ],
+  "cpi_headlines": {
+    "gasoline_spike": {"threshold": 0.08, "headline": "Gas prices spike!", "body": "Pump prices jumped %d%% this month. Long trips are going to hurt."},
+    "gasoline_drop": {"threshold": -0.06, "headline": "Gas prices ease", "body": "Pump prices fell %d%% this month. Time to roam."},
+    "food_home_spike": {"threshold": 0.015, "headline": "Grocery bills climb", "body": "Ingredients cost %d%% more than last month."}
+  }
+}

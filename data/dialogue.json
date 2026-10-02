@@ -1,0 +1,71 @@
+{
+  "gen_z": {
+    "great": [
+      "This was bussin fr, no cap.",
+      "Y'all ate and left no crumbs."
+    ],
+    "ok": [
+      "It's giving... fine. Lowkey mid.",
+      "Not mad at it, ngl."
+    ],
+    "bad": [
+      "The wait? Not it. Big L.",
+      "Sold out?? Bro."
+    ],
+    "chat": [
+      "wait are you on TikTok? do you have a TikTok? you should have a TikTok"
+    ]
+  },
+  "millennial": {
+    "great": [
+      "Okay this is literally goals.",
+      "I'm dead, this is fire."
+    ],
+    "ok": [
+      "Honestly? It's fine. Adulting is exhausting.",
+      "Solid. I've had worse oat milk."
+    ],
+    "bad": [
+      "I can't even. The line!",
+      "This is why I have anxiety."
+    ],
+    "chat": [
+      "Sorry, one sec, my meeting ran over. Do you take Venmo?"
+    ]
+  },
+  "gen_x": {
+    "great": [
+      "Not bad. Not bad at all.",
+      "Okay, that's actually pretty good. Whatever."
+    ],
+    "ok": [
+      "Yeah, it's fine.",
+      "Meh. It's a drink."
+    ],
+    "bad": [
+      "Typical. As if.",
+      "Twenty minutes for this? Seriously."
+    ],
+    "chat": [
+      "You know, I had a truck like this in college. Well, a van. It's a long story."
+    ]
+  },
+  "boomer": {
+    "great": [
+      "Well, that was groovy! Right on!",
+      "Cool beans, young fella!"
+    ],
+    "ok": [
+      "That was swell.",
+      "Not bad at all, kiddo."
+    ],
+    "bad": [
+      "In my day service was a lot quicker!",
+      "Well, I never!"
+    ],
+    "chat": [
+      "Did I ever tell you about my '78 Buick? Now that was a vehicle.",
+      "You remind me of my grandson. Do you know how to fix a printer?"
+    ]
+  }
+}

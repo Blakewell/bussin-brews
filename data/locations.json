@@ -1,0 +1,70 @@
+{
+  "locations": [
+    {
+      "id": "school",
+      "name": "School Pickup Line",
+      "emoji": "🏫",
+      "miles": 10,
+      "permit": 0,
+      "base_traffic": 38,
+      "price_sensitivity": 1.6,
+      "crowd": {
+        "sweet": 1.5,
+        "iced": 1.1,
+        "fancy": 0.6,
+        "caffeinated": 0.5,
+        "hot": 0.9
+      },
+      "generations": {
+        "gen_z": 0.45,
+        "millennial": 0.35,
+        "gen_x": 0.15,
+        "boomer": 0.05
+      }
+    },
+    {
+      "id": "beach",
+      "name": "Beach Boardwalk",
+      "emoji": "🏖️",
+      "miles": 40,
+      "permit": 25,
+      "base_traffic": 62,
+      "price_sensitivity": 0.9,
+      "crowd": {
+        "iced": 1.6,
+        "sweet": 1.2,
+        "fancy": 0.9,
+        "caffeinated": 0.7,
+        "hot": 0.4
+      },
+      "generations": {
+        "gen_z": 0.3,
+        "millennial": 0.3,
+        "gen_x": 0.2,
+        "boomer": 0.2
+      }
+    },
+    {
+      "id": "office",
+      "name": "Downtown Office Park",
+      "emoji": "🏢",
+      "miles": 20,
+      "permit": 15,
+      "base_traffic": 45,
+      "price_sensitivity": 0.7,
+      "crowd": {
+        "caffeinated": 1.6,
+        "fancy": 1.5,
+        "iced": 1.0,
+        "hot": 1.2,
+        "sweet": 0.7
+      },
+      "generations": {
+        "gen_z": 0.1,
+        "millennial": 0.4,
+        "gen_x": 0.35,
+        "boomer": 0.15
+      }
+    }
+  ]
+}

@@ -5,7 +5,12 @@ config_version=5
 
 config/name="Bussin Brews"
 run/main_scene="res://scenes/main.tscn"
-config/features=PackedStringArray("4.4")
+config/features=PackedStringArray("4.7")
+
+[autoload]
+
+Content="*res://scripts/autoload/content.gd"
+GameState="*res://scripts/autoload/game_state.gd"
 
 [display]
 

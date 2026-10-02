@@ -1,0 +1,89 @@
+{
+  "characters": [
+    {
+      "id": "kayden",
+      "name": "Kayden",
+      "nickname": "Mid",
+      "emoji": "🧢",
+      "generation": "gen_z",
+      "role": "regular",
+      "lines": {
+        "great": [
+          "Okay this is actually bussin. Don't let it go to your head.",
+          "No cap, that was the best drink of my week."
+        ],
+        "ok": [
+          "It's... fine? Lowkey mid but I'll be back.",
+          "Mid. But, like, a respectable mid."
+        ],
+        "bad": [
+          "Bro. The line was so long I aged a year.",
+          "Sold out?? That's so not it."
+        ]
+      }
+    },
+    {
+      "id": "priya",
+      "name": "Priya",
+      "emoji": "🧑‍🍳",
+      "generation": "millennial",
+      "role": "crew",
+      "lines": {
+        "great": [
+          "Boss, that was a total win. Honestly? Goals.",
+          "I'm dead, that rush was fire. Can we talk about a raise?"
+        ],
+        "ok": [
+          "Solid day. Adulting is hard but we did it.",
+          "We held it down. Not our best, not our worst."
+        ],
+        "bad": [
+          "I can't even with today. Let's regroup over avocado toast.",
+          "Rough one. We need a new plan, chief."
+        ]
+      }
+    },
+    {
+      "id": "dale",
+      "name": "Dale",
+      "emoji": "🧔",
+      "generation": "gen_x",
+      "role": "regular",
+      "lines": {
+        "great": [
+          "Not bad. Not bad at all. Whatever you're doing, don't change it.",
+          "Huh. Better than the stuff I got in '94. Don't tell anyone I said that."
+        ],
+        "ok": [
+          "Yeah, it's fine. Whatever.",
+          "Meh. It's a drink. I'm not mad at it."
+        ],
+        "bad": [
+          "Ran out of the good stuff, huh? Typical.",
+          "I waited twenty minutes for that. As if."
+        ]
+      }
+    },
+    {
+      "id": "nana_deb",
+      "name": "Nana Deb",
+      "emoji": "👵",
+      "generation": "boomer",
+      "role": "regular",
+      "lines": {
+        "great": [
+          "Well, that was groovy, sweetheart! Right on!",
+          "Cool beans! Reminds me of the soda fountain on Main Street."
+        ],
+        "ok": [
+          "That was swell, dear. Could've used a little more sugar.",
+          "Fair enough! Now where did I put my reading glasses..."
+        ],
+        "bad": [
+          "Oh my stars, such a long wait! In my day we had service with a smile.",
+          "No more hot drinks? Well, I never!"
+        ]
+      }
+    }
+  ]
+}

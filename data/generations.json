@@ -1,0 +1,69 @@
+{
+  "_note": "Behavior profiles per generation. See docs/GENERATIONS.md for sources and which numbers are estimates.",
+  "generations": {
+    "gen_z": {
+      "label": "Gen Z",
+      "emoji": "📱",
+      "buy_rate": 1.2,
+      "tag_fit": {
+        "iced": 1.3,
+        "sweet": 1.3,
+        "fancy": 1.1,
+        "caffeinated": 1.0,
+        "hot": 0.8
+      },
+      "tip_chance": 0.14,
+      "tip_pct": 0.12,
+      "chat_chance": 0.08,
+      "chat_slots": 1.0
+    },
+    "millennial": {
+      "label": "Millennial",
+      "emoji": "🥑",
+      "buy_rate": 1.15,
+      "tag_fit": {
+        "iced": 1.2,
+        "sweet": 1.0,
+        "fancy": 1.3,
+        "caffeinated": 1.25,
+        "hot": 0.95
+      },
+      "tip_chance": 0.18,
+      "tip_pct": 0.14,
+      "chat_chance": 0.1,
+      "chat_slots": 1.0
+    },
+    "gen_x": {
+      "label": "Gen X",
+      "emoji": "📼",
+      "buy_rate": 0.9,
+      "tag_fit": {
+        "iced": 0.9,
+        "sweet": 0.9,
+        "fancy": 0.9,
+        "caffeinated": 1.2,
+        "hot": 1.15
+      },
+      "tip_chance": 0.19,
+      "tip_pct": 0.16,
+      "chat_chance": 0.2,
+      "chat_slots": 1.0
+    },
+    "boomer": {
+      "label": "Boomer",
+      "emoji": "📻",
+      "buy_rate": 0.5,
+      "tag_fit": {
+        "iced": 0.7,
+        "sweet": 0.8,
+        "fancy": 0.8,
+        "caffeinated": 1.0,
+        "hot": 1.4
+      },
+      "tip_chance": 0.26,
+      "tip_pct": 0.18,
+      "chat_chance": 0.45,
+      "chat_slots": 2.0
+    }
+  }
+}
