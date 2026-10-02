@@ -131,6 +131,8 @@ func spawn_customer(name: String, gen_id: String, color: Color) -> Person:
 
 ## The barista hands a drink over; the customer leaves holding it.
 func hand_over(p: Person, cup_color: Color) -> void:
+	if not is_instance_valid(p):
+		return
 	_barista.arm_raise = 1.0
 	p.cup_color = cup_color
 	p.has_cup = true
@@ -217,12 +219,13 @@ func _ambient_customer() -> void:
 	_people.add_child(p)
 	p.walk_to(_window_x())
 	_customer = p
+	# One-shot: `arrived` fires again when they walk off, which must not restart the order.
 	p.arrived.connect(func():
 		var tw := create_tween()
 		tw.tween_interval(0.9)
 		tw.tween_callback(func(): hand_over(p, Palette.ACCENT))
 		tw.tween_interval(0.5)
-		tw.tween_callback(func(): send_away(p)))
+		tw.tween_callback(func(): send_away(p)), CONNECT_ONE_SHOT)
 
 
 # --- drawing ---------------------------------------------------------------

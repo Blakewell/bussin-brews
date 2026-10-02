@@ -546,7 +546,7 @@ func _next_customer() -> void:
 	var c := _customer
 	_arrived = false
 	_person = _scene.spawn_customer(c.name, c.gen_id, _gen_color(c.gen_id))
-	_person.arrived.connect(_on_arrived.bind(c))
+	_person.arrived.connect(_on_arrived.bind(c), CONNECT_ONE_SHOT)
 	_build_order_panel()
 
 
