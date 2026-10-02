@@ -2,6 +2,7 @@ extends Node
 ## Checks the title-screen keyboard controls. Run: godot --path . tests/keys.tscn
 
 func _ready() -> void:
+	GameState.save_path = "user://test_save.json"
 	var main: Control = load("res://scenes/main.tscn").instantiate()
 	add_child(main)
 	await get_tree().create_timer(0.4).timeout

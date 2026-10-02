@@ -7,6 +7,7 @@ var main: Control
 
 func _ready() -> void:
 	get_window().size = Vector2i(1280, 720)
+	GameState.save_path = "user://test_save.json"  # never touch the player's real save
 	main = load("res://scenes/main.tscn").instantiate()
 	add_child(main)
 	await _wait(0.5)

@@ -4,6 +4,7 @@ extends Node
 
 func _ready() -> void:
 	get_window().size = Vector2i(1280, 720)
+	GameState.save_path = "user://test_save.json"  # never touch the player's real save
 	var main: Control = load("res://scenes/main.tscn").instantiate()
 	add_child(main)
 	print("[soak] sitting on the title screen for 40s")
