@@ -11,6 +11,9 @@ var _plan_loc := "school"
 var _prices := {}
 var _servings := {}
 var _difficulty := "easy"
+var _on_title := false
+var _mode_buttons: Array[Button] = []
+var _blurb: Label
 var _last_result := {}
 
 # planning widgets
@@ -78,6 +81,7 @@ func _reset() -> void:
 	_go_buttons.clear()
 	_action_buttons.clear()
 	_in_service = false
+	_on_title = false
 	_scene = null
 	_person = null
 
@@ -217,6 +221,9 @@ func _show_title() -> void:
 	var modes := _row(card)
 	var group := ButtonGroup.new()
 	var blurb := _label("", 16, Palette.MUTED, card)
+	_blurb = blurb
+	_mode_buttons.clear()
+	_on_title = true
 	for d in Content.difficulties:
 		var b := Button.new()
 		b.toggle_mode = true
@@ -228,13 +235,39 @@ func _show_title() -> void:
 			_difficulty = d.id
 			blurb.text = d.blurb)
 		modes.add_child(b)
+		_mode_buttons.append(b)
 	blurb.text = Content.difficulty(_difficulty).blurb
-	_label("Prices follow the real Consumer Price Index, starting January 2026.", 15, Palette.MUTED, card)
-	_button("Open for business", _foot_row(), func():
-		GameState.new_game(0, _difficulty)
-		_prices.clear()
-		_servings.clear()
-		_show_briefing(), true)
+	_label("Prices follow the real Consumer Price Index, starting January 2026. Keyboard: 1, 2, 3 pick a mode; Enter starts.", 15, Palette.MUTED, card)
+	_button("Open for business", _foot_row(), _start_game, true)
+
+
+func _start_game() -> void:
+	_on_title = false
+	GameState.new_game(0, _difficulty)
+	_prices.clear()
+	_servings.clear()
+	_show_briefing()
+
+
+## Keyboard fallback on the title screen: 1/2/3 choose a mode, Enter starts.
+func _unhandled_key_input(event: InputEvent) -> void:
+	if not _on_title or not (event is InputEventKey) or not event.pressed or event.echo:
+		return
+	var idx := -1
+	match event.keycode:
+		KEY_1, KEY_KP_1: idx = 0
+		KEY_2, KEY_KP_2: idx = 1
+		KEY_3, KEY_KP_3: idx = 2
+		KEY_ENTER, KEY_KP_ENTER:
+			_start_game()
+			get_viewport().set_input_as_handled()
+			return
+	if idx >= 0 and idx < Content.difficulties.size():
+		_difficulty = Content.difficulties[idx].id
+		_blurb.text = Content.difficulties[idx].blurb
+		for i in _mode_buttons.size():
+			_mode_buttons[i].button_pressed = (i == idx)
+		get_viewport().set_input_as_handled()
 
 
 # --- briefing --------------------------------------------------------------
