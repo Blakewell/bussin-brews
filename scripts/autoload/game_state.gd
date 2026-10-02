@@ -11,6 +11,7 @@ var run_seed := 1
 var weather_id := "sunny"
 var headlines: Array = []   ## [{headline, body}] shown in the morning briefing
 var history: Array = []     ## one result dict per finished day
+var _current := {}          ## the shift in progress
 var language_mode := "generational"  ## "generational" (each age group speaks its own slang) or "gen_z" (everyone talks Gen Z)
 
 
@@ -111,43 +112,108 @@ func plan_cost(plan: Dictionary) -> float:
 	return total
 
 
-func run_day(plan: Dictionary) -> Dictionary:
+## Starts a shift: locks in the plan and returns the Shift to play (by hand or auto_finish()).
+func begin_shift(plan: Dictionary) -> Shift:
 	var loc := Content.location(plan.location_id)
 	var weather: Dictionary = Content.weather.types[weather_id]
 	var econ: Economy = Content.economy
-	var trip := econ.trip_cost(loc, month())
-	var permit := float(loc.permit)
 	var offers: Array = []
 	var stock_cost := 0.0
+	var drink_plan := {}
 	for o in plan.offers:
 		var d := Content.drink(o.drink_id)
+		var cost_each := econ.serving_cost(d, month())
 		offers.append({"drink": d, "price": o.price, "fair": econ.fair_price(d, month()), "stock": o.servings})
-		stock_cost += o.servings * econ.serving_cost(d, month())
-
+		stock_cost += o.servings * cost_each
+		drink_plan[d.id] = {"stocked": o.servings, "price": o.price, "cost_each": cost_each}
 	var rng := RandomNumberGenerator.new()
 	rng.seed = run_seed + day * 104729
-	var shift := Demand.simulate_shift(offers, loc, weather, traffic_mult(loc.id), reputation, rng, Content.generations)
+	var shift := Shift.new(offers, loc, weather, traffic_mult(loc.id), reputation, rng, Content.generations)
+	_current = {
+		"shift": shift, "loc": loc, "drink_plan": drink_plan, "stock_cost": stock_cost,
+		"trip": econ.trip_cost(loc, month()), "permit": float(loc.permit), "rng": rng,
+	}
+	return shift
 
-	var costs := trip + permit + stock_cost
-	var profit: float = shift.revenue + shift.tips - costs
+
+## Closes out the current shift: pays costs, updates reputation, records and returns the result.
+func finish_shift(mode: String = "auto") -> Dictionary:
+	var shift: Shift = _current.shift
+	var loc: Dictionary = _current.loc
+	var sh: Dictionary = shift.result
+	var costs: float = _current.trip + _current.permit + _current.stock_cost
+	var profit: float = sh.revenue + sh.tips - costs
 	cash += profit
 
-	var attempted: int = shift.served + shift.lost_to_stockout + shift.lost_to_line
-	var satisfaction := float(shift.served) / attempted if attempted > 0 else 1.0
+	var attempted: int = sh.served + sh.lost_to_stockout + sh.lost_to_line + sh.declined
+	var satisfaction := float(sh.served) / attempted if attempted > 0 else 1.0
 	reputation = clampf(reputation + (satisfaction - 0.8) * 0.1, 0.7, 1.5)
 
+	var drinks := {}
+	for id in _current.drink_plan:
+		var dp: Dictionary = _current.drink_plan[id]
+		var n: int = sh.sold.get(id, 0)
+		drinks[id] = {
+			"stocked": dp.stocked, "sold": n, "price": dp.price, "cost_each": dp.cost_each,
+			"profit": n * dp.price - dp.stocked * dp.cost_each,
+		}
+
 	var result := {
-		"day": day, "location_id": loc.id, "weather_id": weather_id, "month": month(),
-		"shift": shift, "trip_cost": trip, "permit": permit, "stock_cost": stock_cost,
-		"revenue": shift.revenue, "tips": shift.tips, "profit": profit, "cash": cash, "reputation": reputation,
-		"quip": _pick_quip(profit, satisfaction, rng),
-		"chatter": _pick_chatter(shift, rng),
+		"day": day, "location_id": loc.id, "weather_id": weather_id, "month": month(), "mode": mode,
+		"shift": sh, "drinks": drinks, "trip_cost": _current.trip, "permit": _current.permit,
+		"stock_cost": _current.stock_cost, "costs": costs, "revenue": sh.revenue, "tips": sh.tips,
+		"profit": profit, "cash": cash, "reputation": reputation,
+		"quip": _pick_quip(profit, satisfaction, _current.rng),
+		"chatter": _pick_chatter(sh, _current.rng),
 	}
+	result["insights"] = insights(result)
 	history.append(result)
 	day += 1
+	_current = {}
 	if not is_game_over():
 		begin_day()
 	return result
+
+
+## Breeze through a whole day with default choices.
+func run_day(plan: Dictionary) -> Dictionary:
+	begin_shift(plan).auto_finish()
+	return finish_shift("auto")
+
+
+func last_result() -> Dictionary:
+	return history.back() if not history.is_empty() else {}
+
+
+## The most recent day spent at this location (or {} if never visited).
+func last_visit(location_id: String) -> Dictionary:
+	for i in range(history.size() - 1, -1, -1):
+		if history[i].location_id == location_id:
+			return history[i]
+	return {}
+
+
+## Plain-language lessons from a day: what to change next time.
+func insights(r: Dictionary) -> Array:
+	var out: Array = []
+	var best_id := ""
+	var best_profit := -INF
+	for id in r.drinks:
+		var d: Dictionary = r.drinks[id]
+		var drink := Content.drink(id)
+		if d.profit > best_profit:
+			best_profit = d.profit
+			best_id = id
+		if d.stocked > 0 and d.sold >= d.stocked:
+			out.append("%s sold out. People wanted more, so stock extra next time." % drink.emoji)
+		elif d.stocked >= 8 and d.sold * 2 < d.stocked:
+			var wasted: float = (d.stocked - d.sold) * d.cost_each
+			out.append("%s only sold %d of %d, about %s of ingredients wasted. Stock fewer, or try another spot." % [drink.emoji, d.sold, d.stocked, "$%.0f" % wasted])
+	if best_id != "":
+		out.push_front("%s was your money-maker (%s profit)." % [Content.drink(best_id).emoji, "$%.0f" % best_profit])
+	if r.shift.lost_to_line > 3:
+		out.append("⏳ %d people gave up on the line. Chatty customers eat up time." % r.shift.lost_to_line)
+	return out.slice(0, 4)
 
 
 ## Which voice a generation uses: its own, or Gen Z for everyone in "gen_z" mode.

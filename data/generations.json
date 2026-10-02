@@ -15,7 +15,15 @@
       "tip_chance": 0.14,
       "tip_pct": 0.12,
       "chat_chance": 0.08,
-      "chat_slots": 1.0
+      "chat_slots": 1.0,
+      "names": [
+        "Zoe",
+        "Jayden",
+        "Mia",
+        "Kai",
+        "Aaliyah",
+        "Luca"
+      ]
     },
     "millennial": {
       "label": "Millennial",
@@ -31,7 +39,15 @@
       "tip_chance": 0.18,
       "tip_pct": 0.14,
       "chat_chance": 0.1,
-      "chat_slots": 1.0
+      "chat_slots": 1.0,
+      "names": [
+        "Ashley",
+        "Josh",
+        "Brittany",
+        "Tyler",
+        "Priyanka",
+        "Matt"
+      ]
     },
     "gen_x": {
       "label": "Gen X",
@@ -47,7 +63,15 @@
       "tip_chance": 0.19,
       "tip_pct": 0.16,
       "chat_chance": 0.2,
-      "chat_slots": 1.0
+      "chat_slots": 1.0,
+      "names": [
+        "Dale",
+        "Lisa",
+        "Mike",
+        "Jennifer",
+        "Scott",
+        "Tracy"
+      ]
     },
     "boomer": {
       "label": "Boomer",
@@ -63,7 +87,15 @@
       "tip_chance": 0.26,
       "tip_pct": 0.18,
       "chat_chance": 0.45,
-      "chat_slots": 2.0
+      "chat_slots": 2.0,
+      "names": [
+        "Linda",
+        "Gary",
+        "Barbara",
+        "Walt",
+        "Carol",
+        "Ron"
+      ]
     }
   }
 }

@@ -16,8 +16,24 @@ func _ready() -> void:
 	await _shot(out, "2_briefing")
 	main._show_planning()
 	await _shot(out, "3_planning")
-	main._run_day()
-	await _shot(out, "4_results")
+	main._breeze()
+	await _shot(out, "4_results_day1")
+	main._show_briefing()
+	await _shot(out, "5_briefing_day2")
+	main._plan_loc = "office"
+	main._show_planning()
+	main._restock_from_yesterday()
+	await _shot(out, "6_planning_day2")
+	main._start_service()
+	for i in 6:
+		if main._customer.is_empty():
+			break
+		main._serve(main._customer.craving, true)
+	await _shot(out, "7_service")
+	main._shift.auto_finish()
+	main._last_result = GameState.finish_shift("hands-on")
+	main._show_results()
+	await _shot(out, "8_results_day2")
 	get_tree().quit()
 
 

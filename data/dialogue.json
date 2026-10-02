@@ -14,6 +14,14 @@
     ],
     "chat": [
       "wait are you on TikTok? do you have a TikTok? you should have a TikTok"
+    ],
+    "order": [
+      "Can I get a %s? Lowkey need it.",
+      "%s, please. No cap, I'm so thirsty."
+    ],
+    "decline": [
+      "Hmm, not feeling that. I'll pass.",
+      "Nah, that's giving mid. I'm good."
     ]
   },
   "millennial": {
@@ -31,6 +39,14 @@
     ],
     "chat": [
       "Sorry, one sec, my meeting ran over. Do you take Venmo?"
+    ],
+    "order": [
+      "Hi! One %s, please. I'm running on fumes.",
+      "Can I do a %s? Adulting is exhausting."
+    ],
+    "decline": [
+      "Oh, I'm good, thanks. Maybe next time!",
+      "Ehh, not really my vibe. Rain check?"
     ]
   },
   "gen_x": {
@@ -48,6 +64,14 @@
     ],
     "chat": [
       "You know, I had a truck like this in college. Well, a van. It's a long story."
+    ],
+    "order": [
+      "Gimme a %s.",
+      "Yeah, a %s. Whatever you've got."
+    ],
+    "decline": [
+      "Nah. Forget it.",
+      "That? No. I'll pass."
     ]
   },
   "boomer": {
@@ -66,6 +90,14 @@
     "chat": [
       "Did I ever tell you about my '78 Buick? Now that was a vehicle.",
       "You remind me of my grandson. Do you know how to fix a printer?"
+    ],
+    "order": [
+      "I'll have the %s, young man.",
+      "One %s, please, dear. Do you take cash?"
+    ],
+    "decline": [
+      "Oh, no thank you, I'll stick with what I asked for.",
+      "That's not what I wanted, sweetheart."
     ]
   }
 }

@@ -11,6 +11,7 @@ func _init() -> void:
 	_check_economy(content)
 	_check_demand(content)
 	_check_generations(content)
+	_check_shift(content)
 	print("")
 	print("FAILED: %d" % failures if failures > 0 else "All sim tests passed")
 	quit(1 if failures > 0 else 0)
@@ -113,3 +114,70 @@ func _check_generations(c) -> void:
 	ok(school_gz > school_boom * 4, "school line is mostly Gen Z (%d vs %d boomers)" % [school_gz, school_boom])
 	var chatty_load := _run(c, "beach", "sunny", 1.0, 200)
 	ok(chatty_load.served < Demand.SHIFT_CAPACITY, "chats use up service time (%d served at capacity %d)" % [chatty_load.served, Demand.SHIFT_CAPACITY])
+
+
+func _check_shift(c) -> void:
+	print("Shift (hand-played)")
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 11
+	var shift := Shift.new(_offers(c), c.location("office"), c.weather.types["cloudy"], 1.0, 1.0, rng, c.generations)
+	var customers := 0
+	var cust := shift.next_customer()
+	var first := cust
+	while not cust.is_empty():
+		customers += 1
+		var out := shift.serve(cust, cust.craving, true)
+		if not out.sold:
+			ok(false, "serving the craving should always sell while in stock")
+			break
+		cust = shift.next_customer()
+	ok(customers > 20 and shift.result.served == customers, "serving every craving sells to every buyer (%d)" % customers)
+	ok(not first.is_empty() and first.weights.has(first.craving), "customers carry a craving and per-drink appeal")
+
+	# Offering a drink the customer likes less than their craving can be declined.
+	var declines := 0
+	var trials := 0
+	for seed_value in 30:
+		var r2 := RandomNumberGenerator.new()
+		r2.seed = seed_value
+		var s2 := Shift.new(_offers(c), c.location("beach"), c.weather.types["hot"], 1.0, 1.0, r2, c.generations)
+		var cu := s2.next_customer()
+		if cu.is_empty():
+			continue
+		var worst := ""
+		var worst_w := INF
+		for id in cu.weights:
+			if cu.weights[id] < worst_w:
+				worst_w = cu.weights[id]
+				worst = id
+		if worst != cu.craving:
+			trials += 1
+			if s2.serve(cu, worst, true).declined:
+				declines += 1
+	ok(trials > 5 and declines > 0, "pushing a drink they don't want gets declined sometimes (%d of %d)" % [declines, trials])
+
+	# Engaging with a chatty customer tips better than cutting them off.
+	var engaged_tips := 0.0
+	var cut_tips := 0.0
+	for seed_value in 60:
+		for engage in [true, false]:
+			var r3 := RandomNumberGenerator.new()
+			r3.seed = seed_value
+			var s3 := Shift.new(_offers(c), c.location("beach"), c.weather.types["sunny"], 1.0, 1.0, r3, c.generations)
+			var cu3 := s3.next_customer()
+			while not cu3.is_empty():
+				if cu3.wants_chat:
+					var o3 := s3.serve(cu3, cu3.craving, engage)
+					if engage:
+						engaged_tips += o3.tip
+					else:
+						cut_tips += o3.tip
+				else:
+					s3.serve(cu3, cu3.craving, true)
+				cu3 = s3.next_customer()
+	ok(engaged_tips > cut_tips, "chatting earns more tips than cutting people off ($%.2f vs $%.2f)" % [engaged_tips, cut_tips])
+
+	var rng_a := RandomNumberGenerator.new()
+	rng_a.seed = 5
+	var auto := Demand.simulate_shift(_offers(c), c.location("school"), c.weather.types["sunny"], 1.0, 1.0, rng_a, c.generations)
+	ok(auto.served > 0 and auto.tips > 0.0, "autopilot shift completes with sales and tips")
