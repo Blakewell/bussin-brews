@@ -38,6 +38,7 @@ Everything asked for so far, with where it stands. **Status:** Done, Partial (so
 | R28 | Quantities go by 1, 3 or 5 from a dropdown, default 5 | Done | "Quantity step" on the plan screen; applies to servings |
 | R29 | At least 10 lines per generation, for variety | Done | 10+ lines for every situation (order, decline, chat, great, ok, bad, add-on yes/no, tip screen): 450 lines |
 | R30 | Choose between a tip jar and a checkout tip screen | Done | See [Tips](#tips-jar-or-checkout-screen) |
+| R31 | Stats: compare locations, weather and setups in a daily graph, and see which items sell best where | Done | See [Stats](#stats) |
 
 ## Inspiration and tone
 **Tiny Bookshop**: a calm daily rhythm of choosing a spot, setting up, serving and winding down; a town of recurring locals; weather and events that nudge decisions without punishing you. Bussin Brews adds generational slang, real-world prices and (later) staff drama. Those should add spice without breaking the cozy feel: setbacks are recoverable and failure is gentle.
@@ -97,6 +98,13 @@ Chosen on the plan screen ("Tips"); the truck shows a tip jar or a card tablet o
 - **Tips line:** how many tipped, and with the tip screen how many were annoyed and the reputation change.
 - **Plan screen:** each item shows how it did yesterday, each location shows its last result and that day's weather, and "Restock from yesterday's sales" sizes stock to what sold.
 - **Briefing:** yesterday's location, weather, profit and lessons.
+
+## Stats
+A **Stats** button on the briefing, plan and wrap-up screens (once a day is finished) opens a page with two dropdowns: **Show** (profit, sales, tips, customers served, or units sold of any drink or treat) and **Compare by** (location, weather, or tip setup).
+- **Daily graph:** one bar per day, colored by the comparison group; hover a bar for the day, group and value. Losses dip below the zero line.
+- **Average per day:** one bar per group, with how many days it's based on. Fewer than 3 days is flagged as mostly luck.
+- **What sells best:** a table of every item × group with average sold per day (days it was on the menu) and share of stock sold. ★ marks the best group for each item; * marks groups where it sold out, so demand was higher than sales show.
+- Math lives in `scripts/sim/stats.gd` (pure functions, unit tested); the graph is `scripts/ui/stats_chart.gd`. Each day's `served` and `arrivals` are stored at the top of the day's record so saved history keeps them. Stats cover the history in memory, which is the last 30 days after loading a save.
 
 ## Economy and real-world prices
 Prices follow four BLS CPI-U series in `data/cpi.json`:
@@ -174,20 +182,21 @@ The game always falls back to the shipped library, so it never breaks. A game mu
 
 ## Architecture (Godot 4.7, GDScript)
 - **Autoloads:** `Content` (loads all `data/*.json`; owns `Cpi` and `Economy`) and `GameState` (run state, day flow, saving).
-- **Sim** (`scripts/sim/`, no UI): `cpi.gd`, `economy.gd`, `demand.gd`, `shift.gd` (one customer at a time; hands-on and autopilot share it), `game_calendar.gd`.
-- **UI** (`scripts/ui/`): `main.gd` builds every screen in code; `palette.gd` holds the theme; `truck_scene.gd` and `person.gd` draw the scene.
+- **Sim** (`scripts/sim/`, no UI): `cpi.gd`, `economy.gd`, `demand.gd`, `shift.gd` (one customer at a time; hands-on and autopilot share it), `game_calendar.gd`, `stats.gd` (numbers for the Stats screen).
+- **UI** (`scripts/ui/`): `main.gd` builds every screen in code; `palette.gd` holds the theme; `truck_scene.gd` and `person.gd` draw the scene; `stats_chart.gd` draws the daily graph.
 - **Data** (`data/`): drinks, treats, locations, weather, events, generations, characters, dialogue, difficulties, cpi. No game content is hard-coded in scripts.
 - **Launch:** the editor's Play button, or `./run.sh` (imports first, since a fresh checkout otherwise fails to find script classes).
 
 ## Testing
 | Suite | Covers |
 |---|---|
-| `tests/run_sim_tests.gd` (headless) | CPI, economy, demand, generations, upsells, declined pitches, difficulty, event timing, names and looks by gender, dialogue counts, tip jar vs screen |
+| `tests/run_sim_tests.gd` (headless) | CPI, economy, demand, generations, upsells, declined pitches, difficulty, event timing, names and looks by gender, dialogue counts, tip jar vs screen, stats math |
 | `tests/save_test.tscn` (headless) | Save round trip, bad files, the Save button and Continue flow, tip modes and reputation, quantity step |
 | `tests/playthrough.tscn` | A full day clicked with real mouse events |
 | `tests/sweep.tscn` | Every location × weather × time of day, plus 12 random-seed games |
 | `tests/soak.tscn` | 40 seconds on a banner screen (catches errors that need time to appear) |
 | `tests/service_race_test.tscn` | Double presses and other timing edge cases during service |
+| `tests/stats_test.tscn` | A dozen days, then every Stats dropdown combination, Back to the right screen; `-- <dir>` saves screenshots |
 | `tests/keys.tscn`, `tests/screenshots.tscn` | Title keyboard controls; screenshots of each screen |
 
 All UI suites use a throwaway save file and should print zero `SCRIPT ERROR` lines.

@@ -178,6 +178,7 @@ func finish_shift(mode: String = "auto") -> Dictionary:
 		"stock_cost": _current.stock_cost, "costs": costs, "revenue": sh.revenue, "tips": sh.tips,
 		"profit": profit, "cash": cash, "reputation": reputation, "rep_change": reputation - rep_before,
 		"tip_mode": shift.tip_mode, "tip_annoyed": sh.tip_annoyed,
+		"served": sh.served, "arrivals": sh.arrivals,  # kept at the top so saves (which drop "shift") still have them for Stats
 		"quip": _pick_quip(profit, satisfaction, _current.rng),
 		"chatter": _pick_chatter(sh, _current.rng),
 	}

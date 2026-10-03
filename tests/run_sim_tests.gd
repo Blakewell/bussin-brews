@@ -17,6 +17,7 @@ func _init() -> void:
 	_check_gen_alpha(content)
 	_check_people(content)
 	_check_tips(content)
+	_check_stats()
 	print("")
 	print("FAILED: %d" % failures if failures > 0 else "All sim tests passed")
 	quit(1 if failures > 0 else 0)
@@ -385,3 +386,29 @@ func _check_tips(c) -> void:
 	for g in c.generations:
 		annoy[g] = c.generations[g].screen_annoyed
 	ok(annoy.gen_x > annoy.gen_z and annoy.boomer > annoy.millennial, "older customers are more annoyed by tip screens (Bankrate 2025)")
+
+
+func _check_stats() -> void:
+	var h := [
+		{"day": 1, "location_id": "school", "weather_id": "sunny", "tip_mode": "jar", "profit": 100.0, "revenue": 200.0, "tips": 5.0, "served": 40,
+			"drinks": {"lemonade": {"stocked": 10, "sold": 10}, "latte": {"stocked": 10, "sold": 2}, "boba": {"stocked": 0, "sold": 0}}},
+		{"day": 2, "location_id": "beach", "weather_id": "rainy", "tip_mode": "screen", "profit": -20.0, "revenue": 90.0, "tips": 8.0,
+			"shift": {"served": 18}, "drinks": {"lemonade": {"stocked": 10, "sold": 4}, "latte": {"stocked": 10, "sold": 8}}},
+		{"day": 3, "location_id": "school", "weather_id": "rainy", "profit": 60.0, "revenue": 150.0, "tips": 3.0, "served": 30,
+			"drinks": {"lemonade": {"stocked": 10, "sold": 6}, "latte": {"stocked": 10, "sold": 4}}},
+	]
+	ok(Stats.metric_value(h[1], "served") == 18.0, "stats: served falls back to the shift record")
+	ok(Stats.metric_value(h[0], "item:lemonade") == 10.0, "stats: item metric reads units sold")
+	ok(Stats.group_key(h[2], "tips") == "jar", "stats: days before tip modes count as tip jar")
+	var series := Stats.daily_series(h, "profit", "weather")
+	ok(series.size() == 3 and series[1].group == "rainy" and series[1].value == -20.0, "stats: daily series keeps order, group and sign")
+	var avgs := Stats.group_averages(h, "profit", "location")
+	ok(is_equal_approx(avgs.school.avg, 80.0) and avgs.school.days == 2 and avgs.beach.days == 1, "stats: averages per location")
+	var t := Stats.item_table(h, "location")
+	ok(not t.has("boba"), "stats: items never stocked are left out")
+	ok(is_equal_approx(t.lemonade.school.avg_sold, 8.0) and is_equal_approx(t.lemonade.school.sell_through, 0.8), "stats: avg sold and sell-through")
+	ok(t.lemonade.school.sold_out == 1 and t.latte.school.sold_out == 0, "stats: sold-out days counted")
+	ok(Stats.best_group(t.lemonade) == "school" and Stats.best_group(t.latte) == "beach", "stats: best location per item")
+	var w := Stats.item_table(h, "weather")
+	ok(Stats.best_group(w.latte) == "rainy", "stats: latte sells best on rainy days in this sample")
+	ok(Stats.best_group({"school": {"avg_sold": 3.0}}) == "", "stats: no 'best' with one group")

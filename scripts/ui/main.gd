@@ -18,6 +18,9 @@ var _on_title := false
 var _mode_buttons: Array[Button] = []
 var _blurb: Label
 var _last_result := {}
+var _stats_metric := "profit"   ## what the Stats graph shows
+var _stats_by := "location"     ## what it compares: location, weather or tips
+var _stats_back: Callable       ## the screen to return to
 
 # planning widgets
 var _summary: Label
@@ -362,7 +365,10 @@ func _show_briefing() -> void:
 		for line in prev.insights:
 			_label("• " + line, 16, Palette.MUTED, c)
 
-	_button("Plan the day →", _foot_row(), _show_planning, true)
+	var foot := _foot_row()
+	if not GameState.history.is_empty():
+		_button("Stats", foot, func(): _show_stats(_show_briefing))
+	_button("Plan the day →", foot, _show_planning, true)
 
 
 # --- planning --------------------------------------------------------------
@@ -446,6 +452,8 @@ func _show_planning() -> void:
 
 	_summary = _label("", 18, Palette.TEXT, _footer)
 	var row := _foot_row()
+	if not GameState.history.is_empty():
+		_button("Stats", row, func(): _show_stats(_show_planning))
 	if not prev.is_empty():
 		_button("Restock from yesterday's sales", row, _restock_from_yesterday)
 	_go_buttons.append(_button("Breeze through the day", row, _breeze))
@@ -827,11 +835,182 @@ func _upsell(treat_id: String) -> void:
 	_later_for_customer(1.0, _depart)
 
 
+# --- stats -----------------------------------------------------------------
+
+const STATS_GROUPINGS := [["location", "Location"], ["weather", "Weather"], ["tips", "Tip setup"]]
+const WEATHER_COLORS := {"sunny": "F3D98B", "hot": "E58F7B", "cloudy": "C4CBD2", "rainy": "9DB7C9", "cold": "C9BFE0"}
+
+
+func _show_stats(back: Callable) -> void:
+	_stats_back = back
+	_render_stats()
+
+
+## Groups that appear in the history, in a stable order, with a name and color each.
+func _stats_groups(by: String) -> Array:
+	var all: Array = []
+	match by:
+		"location":
+			var tints := [Palette.PEACH, Palette.BLUE, Palette.LAVENDER, Palette.SAGE]
+			for i in Content.locations.size():
+				var l: Dictionary = Content.locations[i]
+				all.append({"id": l.id, "name": l.name, "color": tints[i % tints.size()]})
+		"weather":
+			for id in Content.weather.types:
+				all.append({"id": id, "name": Content.weather.types[id].label, "color": Color(WEATHER_COLORS.get(id, "B8C0C8"))})
+		"tips":
+			all = [{"id": "jar", "name": "Tip jar", "color": Palette.SAGE}, {"id": "screen", "name": "Tip screen", "color": Palette.PEACH}]
+	var seen := {}
+	for d in GameState.history:
+		seen[Stats.group_key(d, by)] = true
+	return all.filter(func(g): return seen.has(g.id))
+
+
+func _stats_metrics() -> Array:
+	var out := [["profit", "Profit"], ["revenue", "Sales"], ["tips", "Tips"], ["served", "Customers served"]]
+	for item in Content.drinks + Content.treats:
+		out.append(["item:" + item.id, "%s sold" % item.name])
+	return out
+
+
+func _render_stats() -> void:
+	_reset()
+	var hist: Array = GameState.history
+	var top := _row()
+	_label("Stats · %d day%s" % [hist.size(), "" if hist.size() == 1 else "s"], 30, Palette.TEXT, top).size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_label("Cash %s" % _money(GameState.cash), 22, Palette.TEXT, top)
+
+	var metrics := _stats_metrics()
+	var metric_name := ""
+	var opts := _row()
+	_label("Show", 16, Palette.MUTED, opts)
+	var show := OptionButton.new()
+	for i in metrics.size():
+		show.add_item(metrics[i][1], i)
+		if metrics[i][0] == _stats_metric:
+			show.selected = i
+			metric_name = metrics[i][1]
+	show.item_selected.connect(func(i: int):
+		_stats_metric = metrics[i][0]
+		_render_stats())
+	opts.add_child(show)
+	var gap := Control.new()
+	gap.custom_minimum_size = Vector2(18, 0)
+	opts.add_child(gap)
+	_label("Compare by", 16, Palette.MUTED, opts)
+	var by := OptionButton.new()
+	for i in STATS_GROUPINGS.size():
+		by.add_item(STATS_GROUPINGS[i][1], i)
+		if STATS_GROUPINGS[i][0] == _stats_by:
+			by.selected = i
+	by.item_selected.connect(func(i: int):
+		_stats_by = STATS_GROUPINGS[i][0]
+		_render_stats())
+	opts.add_child(by)
+
+	var groups := _stats_groups(_stats_by)
+	var colors := {}
+	var names := {}
+	for g in groups:
+		colors[g.id] = g.color
+		names[g.id] = g.name
+	var is_money: bool = _stats_metric in ["profit", "revenue", "tips"]
+
+	# Daily graph
+	var graph := _card(null, Palette.PANEL)
+	var ghead := _row(graph)
+	_label("%s by day" % metric_name, 18, Palette.TEXT, ghead).size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	for g in groups:
+		_chip(g.name, g.color, ghead)
+	var chart := StatsChart.new()
+	chart.custom_minimum_size = Vector2(0, 210)
+	chart.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	graph.add_child(chart)
+	chart.set_data(Stats.daily_series(hist, _stats_metric, _stats_by), colors, names, is_money)
+
+	# Average per day, per group
+	var cols := _row()
+	cols.add_theme_constant_override("separation", 14)
+	var avg_card := _card(cols, Palette.SAGE.lerp(Palette.BG, 0.6))
+	avg_card.get_parent().size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_label("Average %s per day" % metric_name.to_lower(), 18, Palette.TEXT, avg_card)
+	var avgs := Stats.group_averages(hist, _stats_metric, _stats_by)
+	var biggest := 0.0
+	for g in avgs:
+		biggest = maxf(biggest, absf(avgs[g].avg))
+	var grid := GridContainer.new()
+	grid.columns = 4
+	grid.add_theme_constant_override("h_separation", 12)
+	avg_card.add_child(grid)
+	var best_id := ""
+	for g in groups:
+		var a: Dictionary = avgs[g.id]
+		if best_id == "" or a.avg > avgs[best_id].avg:
+			best_id = g.id
+		_chip(g.name, g.color, grid)
+		var bar := ColorRect.new()
+		bar.color = g.color if a.avg >= 0.0 else Palette.WARM
+		bar.custom_minimum_size = Vector2(maxf(3.0, 240.0 * absf(a.avg) / maxf(biggest, 0.01)), 16)
+		bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		var holder := Control.new()  # fixed-width lane so bars line up
+		holder.custom_minimum_size = Vector2(244, 20)
+		holder.add_child(bar)
+		bar.position = Vector2(0, 2)
+		grid.add_child(holder)
+		_label(_money(a.avg) if is_money else "%.1f" % a.avg, 16, Palette.TEXT, grid)
+		_label("%d day%s" % [a.days, "" if a.days == 1 else "s"], 14, Palette.MUTED, grid)
+	if groups.size() >= 2:
+		_label("Best so far: %s. Fewer than 3 days in a group is mostly luck." % names[best_id], 14, Palette.MUTED, avg_card)
+	else:
+		_label("Try another %s to compare." % ("spot" if _stats_by == "location" else "setup" if _stats_by == "tips" else "kind of day (weather changes on its own)"), 14, Palette.MUTED, avg_card)
+
+	# What sells where
+	var table := _card(null, Palette.PEACH.lerp(Palette.BG, 0.6))
+	var by_name: String = STATS_GROUPINGS.filter(func(x): return x[0] == _stats_by)[0][1].to_lower()
+	_label("What sells best by %s: average sold per day, and share of stock sold" % by_name, 18, Palette.TEXT, table)
+	var items := Stats.item_table(hist, _stats_by)
+	var tgrid := GridContainer.new()
+	tgrid.columns = groups.size() + 1
+	tgrid.add_theme_constant_override("h_separation", 26)
+	tgrid.add_theme_constant_override("v_separation", 4)
+	table.add_child(tgrid)
+	_label("", 15, Palette.MUTED, tgrid)
+	for g in groups:
+		_chip(g.name, g.color, tgrid)
+	var any_sold_out := false
+	for item in Content.drinks + Content.treats:
+		if not items.has(item.id):
+			continue
+		var row: Dictionary = items[item.id]
+		var best := Stats.best_group(row)
+		_label(item.name, 16, Palette.TEXT, tgrid)
+		for g in groups:
+			if not row.has(g.id):
+				_label("—", 16, Palette.MUTED, tgrid)
+				continue
+			var cell: Dictionary = row[g.id]
+			var mark := ""
+			if cell.sold_out > 0:
+				mark = " *"
+				any_sold_out = true
+			var text := "%.1f  (%d%%)%s" % [cell.avg_sold, int(round(cell.sell_through * 100.0)), mark]
+			if g.id == best:
+				text = "★ " + text
+			_label(text, 16, Palette.GOOD if g.id == best else Palette.TEXT, tgrid)
+	var notes := "★ sells best there."
+	if any_sold_out:
+		notes += " * sold out at least once there, so people wanted more than the number shows."
+	_label(notes, 14, Palette.MUTED, table)
+
+	_button("← Back", _foot_row(), func(): _stats_back.call(), true)
+
+
 # --- results ---------------------------------------------------------------
 
-func _show_results() -> void:
+func _show_results(fresh := true) -> void:
 	_reset()
-	_saved_today = false
+	if fresh:  # coming back from Stats keeps the Saved state
+		_saved_today = false
 	if GameState.is_game_over():
 		GameState.delete_save()  # the run is over; don't offer to continue it
 	var r := _last_result
@@ -920,7 +1099,9 @@ func _show_results() -> void:
 
 	var row := _foot_row()
 	if not GameState.is_game_over():
-		var save_btn := _button("Save progress", row, func(): pass)
+		_button("Stats", row, func(): _show_stats(func(): _show_results(false)))
+		var save_btn := _button("Saved" if _saved_today else "Save progress", row, func(): pass)
+		save_btn.disabled = _saved_today
 		save_btn.pressed.connect(func():
 			if _save_progress():
 				_saved_today = true
