@@ -6,6 +6,7 @@
       "ref_price": 3.5,
       "ref_cost": 0.8,
       "gen_fit": {
+        "gen_alpha": 1.4,
         "gen_z": 1.3,
         "millennial": 1.0,
         "gen_x": 1.1,
@@ -22,6 +23,7 @@
       "ref_price": 4.0,
       "ref_cost": 1.1,
       "gen_fit": {
+        "gen_alpha": 1.6,
         "gen_z": 1.4,
         "millennial": 1.2,
         "gen_x": 0.8,
@@ -37,6 +39,7 @@
       "ref_price": 3.75,
       "ref_cost": 1.2,
       "gen_fit": {
+        "gen_alpha": 0.4,
         "gen_z": 1.0,
         "millennial": 1.5,
         "gen_x": 0.9,
@@ -53,6 +56,7 @@
       "ref_price": 2.75,
       "ref_cost": 0.6,
       "gen_fit": {
+        "gen_alpha": 1.5,
         "gen_z": 1.1,
         "millennial": 1.0,
         "gen_x": 1.2,
@@ -68,6 +72,7 @@
       "ref_price": 3.75,
       "ref_cost": 0.95,
       "gen_fit": {
+        "gen_alpha": 0.9,
         "gen_z": 0.7,
         "millennial": 1.0,
         "gen_x": 1.2,

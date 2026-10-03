@@ -1,19 +1,22 @@
 class_name Person
 extends Node2D
 ## A flat-style person drawn from shapes. Feet sit at the node's origin, facing right when
-## `facing` is 1. Each generation gets its own look: Gen Z beanie and headphones, millennial
-## glasses and a bun, Gen X flannel and a beard, boomer gray hair, visor and cane.
+## `facing` is 1. Each generation gets its own look: Gen Alpha kid-sized with a backpack, a
+## backwards cap and light-up sneakers; Gen Z beanie and headphones; millennial glasses and a
+## bun; Gen X flannel and a beard; boomer gray hair, visor and cane.
 
 signal arrived
 
 const SKIN := [Color("F3D2B3"), Color("E4B48C"), Color("C98F65"), Color("A36B47"), Color("7B4C32")]
 const SHIRTS := {
+	"gen_alpha": [Color("F3E3A3"), Color("A9D8E8"), Color("F2B8C6"), Color("B9E2B0")],
 	"gen_z": [Color("C9BFE0"), Color("E8A5C0"), Color("9DD0C7"), Color("F2C9A5")],
 	"millennial": [Color("A8C3A0"), Color("F2C9A5"), Color("9DB7C9"), Color("E5B7A8")],
 	"gen_x": [Color("C98F8A"), Color("8FA7B8"), Color("B5A48A"), Color("8FAE97")],
 	"boomer": [Color("F2D7A0"), Color("B8C8E0"), Color("C9D8B6"), Color("E8C4C4")],
 }
 const HAIR := {
+	"gen_alpha": [Color("6B4B3A"), Color("3E3A3A"), Color("C8935A")],
 	"gen_z": [Color("5A4A66"), Color("D68FA8"), Color("3E4A57")],
 	"millennial": [Color("6B4B3A"), Color("3E3A3A"), Color("A56F4B")],
 	"gen_x": [Color("6B5A48"), Color("4A4038"), Color("8A6A4A")],
@@ -45,6 +48,7 @@ var _bubble: PanelContainer
 var _bubble_label: Label
 var _tag: PanelContainer
 var _sb := StyleBoxFlat.new()
+var _size := 1.0   ## kids are drawn smaller
 
 
 func setup(generation: String, seed_value: int) -> Person:
@@ -55,6 +59,9 @@ func setup(generation: String, seed_value: int) -> Person:
 	_hair = HAIR[gen_id][(variant / 5) % HAIR[gen_id].size()]
 	if gen_id == "boomer":
 		_speed = 240.0
+	if gen_id == "gen_alpha":
+		_size = 0.78
+		_speed = 380.0
 	_sb.set_corner_radius_all(11)
 	return self
 
@@ -93,7 +100,7 @@ func say(text: String, seconds := 0.0) -> void:
 	_bubble.visible = true
 	_bubble.reset_size()
 	# Sit above the head, centered, keeping on the right side of the scene edge.
-	_bubble.position = Vector2(-_bubble.size.x * 0.5, -150.0 - _bubble.size.y)
+	_bubble.position = Vector2(-_bubble.size.x * 0.5, -150.0 * _size - _bubble.size.y)
 	if seconds > 0.0:
 		var stamp := text
 		# A tween dies with this node, so a person who walks off can't leave a dangling callback.
@@ -157,15 +164,22 @@ func _draw() -> void:
 	var swing := sin(_phase) * 8.0 if _walking else 0.0
 	var bounce := absf(sin(_phase)) * 2.5 if _walking else sin(_t * 2.0) * 1.0
 	# Ground shadow (not mirrored, not bounced).
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2(_size, _size))
 	_ellipse(Vector2(0, 0), 20.0, 4.5, Color(0.24, 0.29, 0.34, 0.14))
-	draw_set_transform(Vector2(0, -bounce), 0.0, Vector2(facing, 1.0))
+	draw_set_transform(Vector2(0, -bounce), 0.0, Vector2(facing * _size, _size))
+
+	if gen_id == "gen_alpha" and not is_barista:  # backpack, behind everything else
+		_sb.bg_color = _shirt.darkened(0.25)
+		draw_style_box(_sb, Rect2(-27.0, -84.0, 16.0, 40.0))
 
 	# Legs and shoes.
 	for side in [-1.0, 1.0]:
 		var lx: float = side * 6.0 + swing * side
 		draw_rect(Rect2(lx - 4.5, -38.0, 9.0, 34.0), PANTS)
-		draw_rect(Rect2(lx - 5.5, -5.0, 12.0, 5.0), SHOES)
+		var shoe := SHOES
+		if gen_id == "gen_alpha":  # light-up sneakers
+			shoe = Palette.ACCENT if fmod(_t * 3.0 + side, 2.0) < 1.0 else Palette.LAVENDER
+		draw_rect(Rect2(lx - 5.5, -5.0, 12.0, 5.0), shoe)
 
 	# Back arm (swings opposite the front arm).
 	var back_swing := -swing * 0.9
@@ -233,6 +247,10 @@ func _torso_details() -> void:
 func _hair_and_accessories() -> void:
 	var head := Vector2(0, -101.0)
 	match gen_id:
+		"gen_alpha":  # backwards cap
+			_dome(head + Vector2(0, -2.0), 15.5, _hair)
+			_dome(head + Vector2(0, -4.0), 16.0, _shirt.darkened(0.2))
+			draw_rect(Rect2(-22.0, -108.0, 10.0, 4.0), _shirt.darkened(0.3))
 		"gen_z":
 			_dome(head + Vector2(0, -3.0), 16.5, Palette.LAVENDER.darkened(0.05) if variant % 2 == 0 else Palette.SAGE)
 			draw_rect(Rect2(-16.5, -108.0, 33.0, 5.0), Palette.TEXT.lerp(Palette.PANEL, 0.35))

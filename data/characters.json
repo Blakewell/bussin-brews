@@ -1,6 +1,27 @@
 {
   "characters": [
     {
+      "id": "nova",
+      "name": "Nova",
+      "nickname": "Aura",
+      "generation": "gen_alpha",
+      "role": "regular",
+      "lines": {
+        "great": [
+          "This truck has infinite aura. I'm telling my whole class.",
+          "Six seven! Best day ever, unc."
+        ],
+        "ok": [
+          "Solid aura. Not legendary, but solid.",
+          "It was okay. My brother fanum taxed half of it."
+        ],
+        "bad": [
+          "You ran out of the good stuff. That's negative aura, no cap.",
+          "That line was so Ohio. I missed recess for this."
+        ]
+      }
+    },
+    {
       "id": "kayden",
       "name": "Kayden",
       "nickname": "Mid",

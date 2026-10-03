@@ -20,7 +20,9 @@ static func appeal(drink: Dictionary, location: Dictionary, weather: Dictionary,
 	for tag in drink.tags:
 		tag_total += float(location.crowd.get(tag, 1.0)) * float(weather.tag_fit.get(tag, 1.0)) * float(generation.tag_fit.get(tag, 1.0))
 	var tag_score: float = tag_total / drink.tags.size()
-	return tag_score * price_factor(price, fair, location.price_sensitivity)
+	# Some generations watch prices harder (Gen Alpha is spending allowance money).
+	var sensitivity: float = location.price_sensitivity * float(generation.get("price_sensitivity", 1.0))
+	return tag_score * price_factor(price, fair, sensitivity)
 
 
 static func roll_generation(mix: Dictionary, rng: RandomNumberGenerator) -> String:

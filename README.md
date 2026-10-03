@@ -1,6 +1,6 @@
 # Bussin Brews
 
-A cozy traveling drink-truck management game built with Godot 4.7. Prices follow the real Consumer Price Index, weather and location change what sells, and customers from four generations buy, tip and talk differently.
+A cozy traveling drink-truck management game built with Godot 4.7. Prices follow the real Consumer Price Index, weather and location change what sells, and customers from five generations, from Gen Alpha kids saying "aura" to boomers saying "groovy", buy, tip and talk differently.
 
 ## Look and feel
 An illustrated street scene in the spirit of Tiny Bookshop: your truck, a backdrop per location (school, beach, office park), weather and time of day, and flat-style people who walk up to the window, order, take their cup and leave. Each generation has its own look. Everything is drawn from shapes in code (`scripts/ui/truck_scene.gd`, `person.gd`) as a stand-in, so real sprite art can replace it later without touching game logic.

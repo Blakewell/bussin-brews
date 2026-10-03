@@ -14,6 +14,7 @@ func _init() -> void:
 	_check_shift(content)
 	_check_upsell(content)
 	_check_difficulty(content)
+	_check_gen_alpha(content)
 	print("")
 	print("FAILED: %d" % failures if failures > 0 else "All sim tests passed")
 	quit(1 if failures > 0 else 0)
@@ -111,13 +112,13 @@ func _check_generations(c) -> void:
 		tip_per[g] = tips[g] / maxf(served[g], 1)
 		chat_rate[g] = float(chats[g]) / maxf(served[g], 1)
 	ok(tip_per.boomer > tip_per.gen_z, "survey data: boomers tip more per customer than Gen Z (%.2f vs %.2f)" % [tip_per.boomer, tip_per.gen_z])
+	ok(tip_per.gen_alpha < tip_per.gen_z, "kids almost never tip (Gen Alpha %.2f vs Gen Z %.2f per customer)" % [tip_per.gen_alpha, tip_per.gen_z])
 	ok(chat_rate.boomer > chat_rate.gen_z * 2.0, "boomers chat far more than Gen Z (%.2f vs %.2f)" % [chat_rate.boomer, chat_rate.gen_z])
-	var school_gz := 0
-	var school_boom := 0
 	var r := _run(c, "school", "sunny")
-	school_gz = r.served_by_gen.get("gen_z", 0)
-	school_boom = r.served_by_gen.get("boomer", 0)
-	ok(school_gz > school_boom * 4, "school line is mostly Gen Z (%d vs %d boomers)" % [school_gz, school_boom])
+	var young: int = r.served_by_gen.get("gen_alpha", 0) + r.served_by_gen.get("gen_z", 0)
+	var school_boom: int = r.served_by_gen.get("boomer", 0)
+	ok(young > school_boom * 4, "school line skews young: Gen Alpha + Gen Z %d vs %d boomers" % [young, school_boom])
+	ok(r.served_by_gen.get("gen_alpha", 0) > 0, "kids buy drinks at the school pickup line (%d)" % r.served_by_gen.get("gen_alpha", 0))
 	var chatty_load := _run(c, "beach", "sunny", 1.0, 200)
 	ok(chatty_load.served < Demand.SHIFT_CAPACITY, "chats use up service time (%d served at capacity %d)" % [chatty_load.served, Demand.SHIFT_CAPACITY])
 
@@ -234,6 +235,8 @@ func _check_upsell(c) -> void:
 	ok(shift.treat_chance(boomer, "muffin") > shift.treat_chance(boomer, "protein_ball"), "boomers favor muffins over protein balls")
 	ok(shift.treat_chance(millennial, "protein_ball") > shift.treat_chance(millennial, "muffin"), "millennials favor protein balls over muffins")
 	ok(shift.treat_chance(boomer, "cookie") > shift.treat_chance({"gen_id": "boomer", "craving": "lemonade", "sold_drink": "lemonade"}, "cookie"), "cookies pair better with a hot drink")
+	var kid := {"gen_id": "gen_alpha", "craving": "boba", "sold_drink": "boba"}
+	ok(shift.treat_chance(kid, "cupcake") > shift.treat_chance(kid, "protein_ball") * 2.0, "kids want cupcakes, not protein balls")
 
 	# Pricing a treat higher cuts the chance.
 	var pricey := _treat_offers(c)
@@ -285,3 +288,30 @@ func _check_difficulty(c) -> void:
 		cash[d.id] = d.cash
 	ok(cash.get("easy") == 1000 and cash.get("medium") == 500 and cash.get("hard") == 100, "easy/medium/hard start with $1000/$500/$100")
 	ok(c.difficulty("nonsense").id == "easy", "unknown difficulty falls back to easy")
+
+
+func _check_gen_alpha(c) -> void:
+	print("Gen Alpha")
+	var kid: Dictionary = c.generations.gen_alpha
+	var school: Dictionary = c.location("school")
+	var wx: Dictionary = c.weather.types["sunny"]
+	var lemonade: Dictionary = c.drink("lemonade")
+	var latte: Dictionary = c.drink("latte")
+	var fair_l: float = c.economy.fair_price(lemonade, "2026-01")
+	var fair_t: float = c.economy.fair_price(latte, "2026-01")
+	ok(Demand.appeal(lemonade, school, wx, kid, fair_l, fair_l) > Demand.appeal(latte, school, wx, kid, fair_t, fair_t) * 2.0, "kids pick sweet lemonade over a caffeinated latte")
+	var millennial: Dictionary = c.generations.millennial
+	var kid_drop: float = Demand.appeal(lemonade, school, wx, kid, fair_l * 1.5, fair_l) / Demand.appeal(lemonade, school, wx, kid, fair_l, fair_l)
+	var adult_drop: float = Demand.appeal(lemonade, school, wx, millennial, fair_l * 1.5, fair_l) / Demand.appeal(lemonade, school, wx, millennial, fair_l, fair_l)
+	ok(kid_drop < adult_drop, "kids on an allowance react more to a price hike (keep %.0f%% vs %.0f%% of interest)" % [kid_drop * 100.0, adult_drop * 100.0])
+	for key in ["order", "decline", "upsell_yes", "upsell_no", "chat", "great", "ok", "bad"]:
+		if not c.dialogue.gen_alpha.has(key) or c.dialogue.gen_alpha[key].is_empty():
+			ok(false, "Gen Alpha has '%s' lines" % key)
+	var all_lines := ""
+	for key in c.dialogue.gen_alpha:
+		all_lines += " ".join(c.dialogue.gen_alpha[key]).to_lower() + " "
+	ok(all_lines.contains("aura"), "Gen Alpha says 'aura'")
+	for loc in c.locations:
+		ok(loc.generations.has("gen_alpha"), "%s has a Gen Alpha share" % loc.name)
+	for t in c.treats:
+		ok(t.gen_fit.has("gen_alpha"), "%s has a Gen Alpha taste" % t.name)

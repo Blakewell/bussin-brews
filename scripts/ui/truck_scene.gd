@@ -153,7 +153,7 @@ func send_away(p: Person, sad := false) -> void:
 func spawn_passerby(gen_id := "") -> Person:
 	if _people.get_child_count() > 9:
 		return null
-	var gens := ["gen_z", "millennial", "gen_x", "boomer"]
+	var gens: Array = Content.generations.keys()
 	var g: String = gen_id if gen_id != "" else gens[_rng.randi() % gens.size()]
 	var from_left := _rng.randf() < 0.5
 	var p := Person.new().setup(g, _rng.randi())
@@ -209,7 +209,7 @@ func _customer_free() -> bool:
 
 ## For banner screens: a stranger walks up, pauses at the window, then leaves with a drink.
 func _ambient_customer() -> void:
-	var gens := ["gen_z", "millennial", "gen_x", "boomer"]
+	var gens: Array = Content.generations.keys()
 	var g: String = gens[_rng.randi() % gens.size()]
 	var p := Person.new().setup(g, _rng.randi())
 	p.scale = Vector2(0.95, 0.95)

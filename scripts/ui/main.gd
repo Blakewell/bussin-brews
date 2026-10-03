@@ -187,7 +187,7 @@ func _starting_servings(treat: bool) -> int:
 
 
 func _mix_text(location: Dictionary, compact := false) -> String:
-	var short := {"millennial": "Mill.", "boomer": "Boomer"}
+	var short := {"gen_alpha": "Alpha", "gen_z": "Z", "millennial": "Mill.", "gen_x": "X", "boomer": "Boomer"}
 	var parts: Array[String] = []
 	for g in location.generations:
 		var label: String = Content.generations[g].label

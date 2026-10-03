@@ -1,7 +1,7 @@
 # Bussin Brews: Design Doc
 
 ## Pitch
-You run a traveling drink truck. Each day you check the weather and the news, pick where to park, set your menu and prices, and serve a line of customers from four generations who order, tip and talk differently. Prices follow the real Consumer Price Index, so a real-world gas spike really does make the long drive to the beach hurt. The feel is cozy, in the spirit of Tiny Bookshop.
+You run a traveling drink truck. Each day you check the weather and the news, pick where to park, set your menu and prices, and serve a line of customers from five generations, from Gen Alpha kids to boomers, who order, tip and talk differently. Prices follow the real Consumer Price Index, so a real-world gas spike really does make the long drive to the beach hurt. The feel is cozy, in the spirit of Tiny Bookshop.
 
 ## Requirements
 Everything asked for so far, with where it stands. **Status:** Done, Partial (some of it is built), Planned (agreed, not built), Changed (we went a different way, and why).
@@ -32,6 +32,7 @@ Everything asked for so far, with where it stands. **Status:** Done, Partial (so
 | R22 | A path to real art later | Planned | See [Art](#art) |
 | R23 | It must play from the Godot editor's Play button | Done | The editor halts on any script error, so the test suites check for zero `SCRIPT ERROR` lines |
 | R24 | Public GitHub repo | Done | https://github.com/Blakewell/bussin-brews |
+| R25 | Gen Alpha kids, using current Gen Alpha slang like "aura" | Done | Fifth generation; mostly at the school line; Nova "Aura" is a regular. See [GENERATIONS.md](GENERATIONS.md#gen-alpha) |
 
 ## Inspiration and tone
 **Tiny Bookshop**: a calm daily rhythm of choosing a spot, setting up, serving and winding down; a town of recurring locals; weather and events that nudge decisions without punishing you. Bussin Brews adds generational slang, real-world prices and (later) staff drama. Those should add spice without breaking the cozy feel: setbacks are recoverable and failure is gentle.
@@ -53,11 +54,11 @@ Each shift has a number of arrivals:
 arrivals = location.base_traffic × 2.4 × weather.traffic × event_multiplier × reputation
 ```
 
-Each arrival rolls a generation from the location's mix (the school line is 45% Gen Z; the office park is mostly millennials and Gen X). For each drink, their interest is:
+Each arrival rolls a generation from the location's mix (the school line is 35% Gen Alpha and 25% Gen Z; the office park is mostly millennials and Gen X). For each drink, their interest is:
 
 ```
 appeal = average over the drink's tags of (crowd taste × weather fit × generation taste) × price factor
-price factor = exp(−price_sensitivity × (your price / fair price − 1))
+price factor = exp(−location sensitivity × generation sensitivity × (your price / fair price − 1))
 ```
 
 Whether they buy at all depends on total appeal times the generation's `buy_rate` against a walk-away weight. If they buy, they pick a drink in proportion to appeal among what's in stock. If nothing they'd want is left, they leave unhappy. The truck has 90 service slots per shift; once they're used up, people give up on the line. Chatty customers and add-on offers use extra slots.
@@ -76,7 +77,7 @@ After a drink sells you can offer one treat from the bakery case. Each treat sho
 **Breeze through.** The same model runs on autopilot: everyone gets what they asked for, every chatter is heard out, and the likeliest treat is offered with a lower success rate. You can switch from hands-on to breeze at any point in a shift.
 
 ## Bakery case (upsells)
-Fudge brownie, frosted cupcake, protein ball, chocolate chip cookie, blueberry muffin (`data/treats.json`). Acceptance depends on generation taste (muffins and cookies skew older, cupcakes and brownies younger, protein balls millennial), how well it pairs with the drink they bought (cookies with hot drinks, protein balls with iced coffee), and price. These preferences are design estimates, not survey data. Unsold stock is wasted at the end of the day.
+Fudge brownie, frosted cupcake, protein ball, chocolate chip cookie, blueberry muffin (`data/treats.json`). Acceptance depends on generation taste (muffins and cookies skew older, cupcakes and brownies younger, kids love cupcakes and skip protein balls, protein balls skew millennial), how well it pairs with the drink they bought (cookies with hot drinks, protein balls with iced coffee), and price. These preferences are design estimates, not survey data. Unsold stock is wasted at the end of the day.
 
 ## Wrap-up and day-over-day comparison
 - **Wrap-up:** a Today / Yesterday / Change table for sales, tips, costs and profit (costs going up shows as a warning), per-item sold vs stocked with ▲/▼ against yesterday, add-on results, and what was lost to stockouts, the line, or declined pitches.
@@ -103,10 +104,11 @@ Reference prices are set for January 2026, the base month. Each game month is 10
 Planned: events that move fuel, ingredient and wage costs directly. The original design called for these, but none are wired up yet.
 
 ## Generations
-Four generations, each with buying, tipping, chatting and taste profiles from survey data, and its own slang. Details, sources and which numbers are estimates are in [GENERATIONS.md](GENERATIONS.md).
+Five generations (Gen Alpha, Gen Z, millennial, Gen X, boomer), each with buying, tipping, chatting and taste profiles from survey data where it exists, and its own slang. Details, sources and which numbers are estimates are in [GENERATIONS.md](GENERATIONS.md).
 
 ## Recurring characters
 **Built** (in `data/characters.json`; they currently appear only in the end-of-day quote):
+- **Nova "Aura"** (Gen Alpha): rates everything in aura points and yells "six seven".
 - **Kayden "Mid"** (Gen Z): rates everything "mid" until you earn a "bussin".
 - **Priya** (millennial): overachiever barista who wants a raise.
 - **Dale** (Gen X): unimpressed regular with a story about 1994.
@@ -130,7 +132,7 @@ Not built yet. The plan:
 - Time of day: the sky moves from dawn to midday to dusk as the shift progresses.
 - The truck with its awning, string lights, "BUSSIN BREWS" sign and a barista in the window.
 
-**People** (`scripts/ui/person.gd`) are flat-style figures who walk up, order in a speech bubble, take a cup, and leave holding it. Non-buyers walk past. Each generation has a look: Gen Z beanie and headphones, millennial glasses, bun and tote, Gen X flannel and beard, boomer gray hair, visor and cane.
+**People** (`scripts/ui/person.gd`) are flat-style figures who walk up, order in a speech bubble, take a cup, and leave holding it. Non-buyers walk past. Each generation has a look: Gen Alpha kid-sized with a backpack, backwards cap and light-up sneakers; Gen Z beanie and headphones, millennial glasses, bun and tote, Gen X flannel and beard, boomer gray hair, visor and cane.
 
 ## Art
 All art is currently drawn from shapes in code, as a stand-in. Swapping in real art means replacing the draw calls in `person.gd` and `truck_scene.gd` with sprites; game logic doesn't change. Options: free CC0 packs (e.g. Kenney), cheap itch.io packs, or a commissioned illustrator for a consistent look. AI image tools are fine for concept art; check their licensing before shipping anything made with them.

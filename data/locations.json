@@ -15,10 +15,11 @@
         "hot": 0.9
       },
       "generations": {
-        "gen_z": 0.45,
-        "millennial": 0.35,
-        "gen_x": 0.15,
-        "boomer": 0.05
+        "gen_alpha": 0.35,
+        "gen_z": 0.25,
+        "millennial": 0.25,
+        "gen_x": 0.12,
+        "boomer": 0.03
       }
     },
     {
@@ -36,10 +37,11 @@
         "hot": 0.4
       },
       "generations": {
-        "gen_z": 0.3,
-        "millennial": 0.3,
-        "gen_x": 0.2,
-        "boomer": 0.2
+        "gen_alpha": 0.12,
+        "gen_z": 0.27,
+        "millennial": 0.27,
+        "gen_x": 0.17,
+        "boomer": 0.17
       }
     },
     {
@@ -57,9 +59,10 @@
         "sweet": 0.7
       },
       "generations": {
+        "gen_alpha": 0.02,
         "gen_z": 0.1,
         "millennial": 0.4,
-        "gen_x": 0.35,
+        "gen_x": 0.33,
         "boomer": 0.15
       }
     }

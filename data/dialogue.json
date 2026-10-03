@@ -1,4 +1,41 @@
 {
+  "gen_alpha": {
+    "great": [
+      "+1000 aura for this truck fr.",
+      "This drink is mogging every other drink.",
+      "Six sevennnn! It's so good."
+    ],
+    "ok": [
+      "It's alright. Mid aura.",
+      "Kinda sigma, kinda not."
+    ],
+    "bad": [
+      "That wait was so Ohio.",
+      "-1000 aura for running out. Unc, why."
+    ],
+    "chat": [
+      "Do you know what six seven means? Nobody does. Six seven!",
+      "My dad's gonna fanum tax this, watch.",
+      "Is this truck aura farming? Because it's working."
+    ],
+    "order": [
+      "Can I get a %s? My mom said I could.",
+      "One %s please! Pure aura.",
+      "%s! Six seven!"
+    ],
+    "decline": [
+      "Nah, that's so Ohio.",
+      "That one has no rizz. I want what I said."
+    ],
+    "upsell_yes": [
+      "Okay, that's a W. Mom, can I?",
+      "Bet. Aura points."
+    ],
+    "upsell_no": [
+      "I only have my allowance.",
+      "My mom said only one thing."
+    ]
+  },
   "gen_z": {
     "great": [
       "This was bussin fr, no cap.",
