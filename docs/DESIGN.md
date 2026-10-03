@@ -1,116 +1,189 @@
 # Bussin Brews: Design Doc
 
 ## Pitch
-You run a traveling drink truck. Every day you pick a spot, check the weather and the news, stock a menu, manage a crew with feelings, and try to stay profitable. The world pushes back: heat waves, rain, gas spikes, ingredient shortages, and a rotating cast of regulars and coworkers who all have opinions. Everything is narrated in teen slang.
+You run a traveling drink truck. Each day you check the weather and the news, pick where to park, set your menu and prices, and serve a line of customers from four generations who order, tip and talk differently. Prices follow the real Consumer Price Index, so a real-world gas spike really does make the long drive to the beach hurt. The feel is cozy, in the spirit of Tiny Bookshop.
+
+## Requirements
+Everything asked for so far, with where it stands. **Status:** Done, Partial (some of it is built), Planned (agreed, not built), Changed (we went a different way, and why).
+
+| # | Requirement | Status | Notes |
+|---|---|---|---|
+| R1 | A traveling truck that sells fancy drinks ("Bussin Brews") | Done | 5 drinks in `data/drinks.json` |
+| R2 | Weather, location and which drinks you stock affect orders | Done | See [Demand model](#demand-model) |
+| R3 | Hip teen lingo | Changed | Became generational slang (R11): each age group talks like its generation |
+| R4 | Fun recurring characters | Partial | Kayden, Priya, Dale and Nana Deb exist but only appear in the end-of-day quote. Big Tony, Ms. Alvarez and Jaxon are planned. See [Characters](#recurring-characters) |
+| R5 | Staff you have to keep: tips or no tips, work drama | Planned | Not built yet. See [Staff and drama](#staff-and-drama-planned) |
+| R6 | The economy reacts to real current events (e.g. the gas spike) | Done | Real BLS CPI data drives prices; the real March 2026 gas spike hits around day 21. See [Economy](#economy-and-real-world-prices) |
+| R7 | A soothing color scheme | Done | See [Visual style](#visual-style) |
+| R8 | Look and feel like Tiny Bookshop | Partial | Illustrated street scene with flat people walking up. Truck decorating and real art are not built yet |
+| R9 | Starting money: originally $1,000, then Easy $1,000 / Medium $500 / Hard $100, default Easy | Done | `data/difficulties.json` |
+| R10 | Real-world pricing based on the Consumer Price Index | Done | `tools/fetch_cpi.py` pulls BLS data into `data/cpi.json` |
+| R11 | Older people use older slang, younger people use younger slang | Done | `data/dialogue.json`, `data/characters.json` |
+| R12 | Generational behavior from real data (you suggested: older people chat but don't tip, younger tip generously) | Changed | The survey data says the opposite about tips: older generations tip more. The game follows the data. Older customers chatting more is kept as a design choice. See [GENERATIONS.md](GENERATIONS.md) |
+| R13 | A language toggle, then removed since there was only one sensible mode | Done (removed) | Always generational |
+| R14 | Sell to each customer by hand, or breeze through the day | Done | See [Service](#service-hands-on-or-breeze-through) |
+| R15 | Compare what worked with the previous day | Done | Briefing, plan screen and wrap-up all compare. See [Wrap-up](#wrap-up-and-day-over-day-comparison) |
+| R16 | Turn drinks up or down | Done | −/+ for price and servings on every item |
+| R17 | Upsell brownies, cupcakes, protein balls, cookies and muffins | Done | See [Bakery case](#bakery-case-upsells) |
+| R18 | Not emoji, not text-only: flat people moving, like Tiny Bookshop | Done | Drawn from shapes in code as a stand-in for real art |
+| R19 | Drinks and baked goods as tabs, no long scrolling screen | Done | Plan screen fits on one page |
+| R20 | Save progress | Done | See [Saving](#saving) |
+| R21 | AI for realistic turn-by-turn conversations, without big running costs, since others may play | Planned | See [AI dialogue](#ai-dialogue-planned) |
+| R22 | A path to real art later | Planned | See [Art](#art) |
+| R23 | It must play from the Godot editor's Play button | Done | The editor halts on any script error, so the test suites check for zero `SCRIPT ERROR` lines |
+| R24 | Public GitHub repo | Done | https://github.com/Blakewell/bussin-brews |
 
 ## Inspiration and tone
-The feel we're after is **Tiny Bookshop**: a cozy, low-stress management game about a small mobile shop. Take the structure, not the content:
-- A calm daily rhythm of choosing a spot, setting up, serving, and winding down.
-- A charming town of recurring locals you come to care about.
-- A shop you personalize (decorate the truck, pick a menu that reflects your taste).
-- Weather and local events that nudge decisions without punishing you harshly.
-
-Bussin Brews differs by adding a teen-slang voice, staff drama, and real-world economic pressure. Those layers should add spice without breaking the cozy feel: setbacks are recoverable and failure is gentle.
+**Tiny Bookshop**: a calm daily rhythm of choosing a spot, setting up, serving and winding down; a town of recurring locals; weather and events that nudge decisions without punishing you. Bussin Brews adds generational slang, real-world prices and (later) staff drama. Those should add spice without breaking the cozy feel: setbacks are recoverable and failure is gentle.
 
 ## Starting modes
-Easy starts with $1,000, Medium with $500, Hard with $100 (`data/difficulties.json`). The default stock on the plan screen scales to the starting cash so Hard begins with a small, affordable menu and no bakery stock.
+Easy starts with $1,000, Medium $500, Hard $100. Easy is the default. Default stock on the plan screen scales with starting cash, so Hard opens with 3 of each drink and no baked goods. A run ends if cash drops below $25. On the title screen, 1/2/3 also pick a mode and Enter starts or continues.
 
-## Core loop (one in-game day)
-1. **Morning briefing.** Weather forecast, headlines, gas price, crew mood.
-2. **Plan.** Pick a location, set the menu and prices, buy stock. Fuel cost depends on distance.
-3. **Service.** A short real-time shift. Customers arrive, you or your crew make drinks, and speed and accuracy affect tips and reputation.
-4. **Close out.** Revenue, costs, profit, and a **drama beat**: a crew conflict, a regular's request, or an event that forces a choice.
-5. **Save and next day.** Choices carry consequences forward.
+## Daily loop (as built)
+1. **Briefing:** date, weather, gas price and its change, headlines, and yesterday's result with lessons.
+2. **Plan:** pick a location (left column) and set prices and servings in the Drinks and Baked goods tabs (right). The upfront cost (gas, permit, stock) and cash-after update live.
+3. **Service:** serve customers one by one, or breeze through the day on autopilot.
+4. **Wrap-up:** sales, tips, costs and profit against yesterday, per-item results, lessons, and a quote from a regular.
+5. **Autosave**, then the next day.
 
-## Systems
-
-### Demand model
-Orders per hour at a spot:
+## Demand model
+Each shift has a number of arrivals:
 
 ```
-orders = location.base_traffic
-       * weather_fit(drink, weather)     // iced drinks boom in heat, hot drinks in rain/cold
-       * event_modifier                  // festival, game day, school break
-       * price_factor(price, location)   // elasticity depends on who lives there
-       * reputation                      // grows with good service, shrinks with bad
+arrivals = location.base_traffic × 2.4 × weather.traffic × event_multiplier × reputation
 ```
 
-Each drink has tags (`iced`, `hot`, `sweet`, `fancy`, `caffeinated`). Each location has a crowd profile (students like cheap and sweet; downtown likes fancy and caffeinated; the beach likes iced). `weather_fit` and the crowd match both read these tags, so adding a drink or place is data-only.
-
-### Locations
-Examples: School Pickup Line, Beach Boardwalk, Downtown Office Park, Stadium Lot, Farmers Market, Skate Park. Each has traffic, crowd profile, rent or permit cost, distance (fuel), and time-of-day curve. Some are locked until reputation grows.
-
-### Truck customization
-Decorate the truck with unlockable items (string lights, plants, stickers, signage, a tiny speaker). Decor gives small bonuses to certain crowds (fairy lights for evening spots, plants for the farmers market) and is mostly there for personality.
-
-### Bakery case (upsells)
-After a drink sells, offer one treat: brownie, cupcake, protein ball, cookie or muffin. Acceptance depends on the customer's generation, how well the treat pairs with their drink (cookies with hot drinks, protein balls with iced coffee), and price. Offers cost a little service time, so spamming slows the line. Autopilot sells treats too, but less persuasively than hands-on play.
-
-### Menu and ingredients
-Drinks are recipes made of ingredients (base, flavor, topping). Ingredients have a cost that the economy can move, and some can run out. Start with a fixed menu. Mixable custom drinks are a later milestone.
-
-### Staff and morale
-- Each staff member has skills (speed, accuracy, charm) and traits (e.g. `main-character`, `grinder`, `drama-magnet`).
-- Stats: **morale**, **loyalty**, wage expectation.
-- Choices that move them: tips (share tips or keep them), schedule fairness, handling conflicts, raises.
-- Low morale slows service and raises the chance of a **quit** or a **no-show**. Hiring and training has a real cost.
-- **Work drama** is an event system keyed on traits and relationships: two staff feud, someone posts a bad review, someone wants Friday off.
-
-### Recurring characters
-Fixed cast with arcs and running gags, so players recognize them. They appear as customers, crew, or vendors.
-- **Kayden "Mid" Morris:** regular who rates everything "mid" until you earn a "bussin".
-- **Priya:** overachiever barista, wants to be promoted.
-- **Big Tony:** rival truck owner, sabotages with a smile.
-- **Ms. Alvarez:** the health inspector, shows up at the worst moment.
-- **Jaxon:** crew member, loyal but chaotic.
-- **Nana Deb:** sweet customer, tips big, speaks in perfect slang that she learned yesterday.
-
-### Economy and current events
-The economy is driven by an **event feed** that applies timed modifiers to costs and demand.
+Each arrival rolls a generation from the location's mix (the school line is 45% Gen Z; the office park is mostly millennials and Gen X). For each drink, their interest is:
 
 ```
-event {
-  headline, description, start_day, duration,
-  effects: [{ target: "fuel" | "ingredient:<id>" | "demand:<tag>" | "wages", mult: 1.4 }]
-}
+appeal = average over the drink's tags of (crowd taste × weather fit × generation taste) × price factor
+price factor = exp(−price_sensitivity × (your price / fair price − 1))
 ```
 
-- **Fuel** is the first-class example: gas price sets the cost of every trip, so a spike forces you to choose between a far lucrative spot and a nearby one.
-- Other effects: sugar or dairy cost swings, oat milk shortage, a heat wave, a tariff on cups, inflation nudging wage demands.
-- **Phase 1:** curated event packs in JSON, written to resemble real headlines, so the game works offline and tests are deterministic.
-- **Phase 2 (optional):** pull real numbers where there is a free source, e.g. the national average gas price, and map them onto the fuel multiplier. Headlines in-game stay curated and hand-written so nothing depends on a news API or its licensing.
+Whether they buy at all depends on total appeal times the generation's `buy_rate` against a walk-away weight. If they buy, they pick a drink in proportion to appeal among what's in stock. If nothing they'd want is left, they leave unhappy. The truck has 90 service slots per shift; once they're used up, people give up on the line. Chatty customers and add-on offers use extra slots.
 
-### Generations
-Customers come from four generations with data-backed buying, tipping and chatting behavior, and each speaks its own slang. See [GENERATIONS.md](GENERATIONS.md).
+Reputation (0.7 to 1.5) moves with satisfaction: people served versus people lost to stockouts, the line, or declined pitches.
 
-### Lingo
-All player-facing dialogue is pulled from data files with **tags** (greeting, order, praise, complaint, quit) so slang can be swapped out as it ages. Each character has a voice profile (words they favor, words they never use).
+## Service: hands-on or breeze through
+**Hands-on.** Each customer walks up to the window and says their order in a speech bubble in their generation's voice. You can:
+- **Serve what they asked for** (Space).
+- **Suggest a different drink.** They accept with a chance based on how much they like it compared to what they came for. Each pitch costs a moment, and after one "no" they stick with their order.
+- **Hear them out** if they want to chat (better tip, costs time) or **keep it quick** (no time cost, worse tip).
+- **Turn them away.**
+
+After a drink sells you can offer one treat from the bakery case. Each treat shows a hint: good bet, maybe, or long shot.
+
+**Breeze through.** The same model runs on autopilot: everyone gets what they asked for, every chatter is heard out, and the likeliest treat is offered with a lower success rate. You can switch from hands-on to breeze at any point in a shift.
+
+## Bakery case (upsells)
+Fudge brownie, frosted cupcake, protein ball, chocolate chip cookie, blueberry muffin (`data/treats.json`). Acceptance depends on generation taste (muffins and cookies skew older, cupcakes and brownies younger, protein balls millennial), how well it pairs with the drink they bought (cookies with hot drinks, protein balls with iced coffee), and price. These preferences are design estimates, not survey data. Unsold stock is wasted at the end of the day.
+
+## Wrap-up and day-over-day comparison
+- **Wrap-up:** a Today / Yesterday / Change table for sales, tips, costs and profit (costs going up shows as a warning), per-item sold vs stocked with ▲/▼ against yesterday, add-on results, and what was lost to stockouts, the line, or declined pitches.
+- **Lessons:** the best money-maker, items that sold out, and items that mostly went to waste.
+- **Plan screen:** each item shows how it did yesterday, each location shows its last result and that day's weather, and "Restock from yesterday's sales" sizes stock to what sold.
+- **Briefing:** yesterday's location, weather, profit and lessons.
+
+## Economy and real-world prices
+Prices follow four BLS CPI-U series in `data/cpi.json`:
+
+| Series | Drives |
+|---|---|
+| Food away from home | The fair price of each drink and treat (what customers expect to pay) |
+| Food at home | Ingredient cost per serving |
+| Gasoline | Gas price, which sets trip cost (round trip ÷ 6 mpg × price per gallon) |
+| All items | Reference only |
+
+Reference prices are set for January 2026, the base month. Each game month is 10 days, starting January 2026. A month with no published value carries the previous value forward. October 2025 is missing from three of the four series in the BLS data.
+
+**Headlines** come from two places. Real CPI moves generate them automatically at the start of each month: gas up 8%+, gas down 6%+, groceries up 1.5%+. Curated events in `data/events.json` add the rest: the spring school fair (day 32), the boardwalk festival (day 40) and a heat dome (day 55).
+
+**Data window:** the data currently runs through August 2026, about day 80. After that, prices stop changing until the data is refreshed with `python3 tools/fetch_cpi.py 2025 2026`.
+
+Planned: events that move fuel, ingredient and wage costs directly. The original design called for these, but none are wired up yet.
+
+## Generations
+Four generations, each with buying, tipping, chatting and taste profiles from survey data, and its own slang. Details, sources and which numbers are estimates are in [GENERATIONS.md](GENERATIONS.md).
+
+## Recurring characters
+**Built** (in `data/characters.json`; they currently appear only in the end-of-day quote):
+- **Kayden "Mid"** (Gen Z): rates everything "mid" until you earn a "bussin".
+- **Priya** (millennial): overachiever barista who wants a raise.
+- **Dale** (Gen X): unimpressed regular with a story about 1994.
+- **Nana Deb** (boomer): sweet, says "groovy" and "cool beans".
+
+**Planned:** Big Tony (rival truck owner, sabotages with a smile), Ms. Alvarez (health inspector, worst timing), Jaxon (loyal but chaotic crew member). Next steps: regulars should walk up as real customers in the scene, remember past visits, and have small arcs.
+
+## Staff and drama (planned)
+Not built yet. The plan:
+- Staff have skills (speed, accuracy, charm) and traits (e.g. `main-character`, `grinder`, `drama-magnet`), plus morale, loyalty and wage expectations.
+- The **tips** choice: share tips with staff or keep them. Sharing costs you money but raises morale. Other choices are schedule fairness, raises and handling conflicts.
+- Low morale slows service and raises the chance of no-shows and quits. Hiring and training cost money.
+- **Work drama** is an event system keyed on traits and relationships: feuds, a bad review, someone wanting Friday off.
 
 ## Visual style
-**Soothing color scheme** is a core requirement. The game is busy (queues, timers, drama), so the visuals should stay calm.
-- Soft, low-saturation pastels: sage green, dusty blue, warm cream, peach, lavender. No pure black or pure white.
-- Warm, off-white backgrounds with dark-slate text for readable contrast.
-- One gentle accent color for key actions (e.g. soft coral), used sparingly.
-- Weather and time of day shift the palette subtly (golden afternoon, misty rainy blue) rather than switching to harsh colors.
-- Urgency (impatient customers, low morale) is shown with a warmer tint and motion, not alarm red.
-- Define the palette once as a Godot `Theme` resource plus a `Palette` constants script so every screen shares it.
+**Soothing palette** (`scripts/ui/palette.gd`): sage, dusty blue, warm cream, peach and lavender, with dark-slate text and one soft coral accent for the main action. No pure black or white. Warnings use a warm amber, never alarm red.
 
-## Architecture (Godot 4, GDScript)
-- **Autoloads:** `GameState` (money, day, reputation, save/load), `EventBus` (signals), `Economy` (active modifiers, price lookups), `Content` (loads data files).
-- **Data in `data/*.json`:** drinks, ingredients, locations, characters, events, dialogue. No game content hard-coded in scripts.
-- **Scenes:** `main_menu`, `briefing`, `planning`, `service`, `closeout`, `drama`.
-- **Simulation is separate from UI:** `scripts/sim/` holds pure logic (demand, economy, morale) that can be unit tested without the scene tree.
-- Tests via GUT or plain headless script checks for the sim.
+**The street scene** (`scripts/ui/truck_scene.gd`) appears as the stage during service and as a banner on the other screens:
+- A backdrop for each location: a school with a flagpole and fence, a beach with sea, umbrella and palm, or an office park with towers.
+- Weather: drifting clouds, rain, heat glow, a chilly tint.
+- Time of day: the sky moves from dawn to midday to dusk as the shift progresses.
+- The truck with its awning, string lights, "BUSSIN BREWS" sign and a barista in the window.
 
-## Milestones
-1. **Vertical slice.** Data loader, one day loop with 3 locations, 4 drinks, weather and demand model, planning and closeout screens, one fuel event. No real-time service yet (auto-resolved shift).
-2. **Service mini-game.** Real-time order taking and drink assembly.
-3. **Staff.** Hiring, morale, tips choice, quits.
-4. **Characters and drama.** Recurring cast, drama events, dialogue system.
-5. **Economy depth.** More events, ingredient shortages, optional live gas price.
-6. **Polish.** Art, audio, save/load, balance.
+**People** (`scripts/ui/person.gd`) are flat-style figures who walk up, order in a speech bubble, take a cup, and leave holding it. Non-buyers walk past. Each generation has a look: Gen Z beanie and headphones, millennial glasses, bun and tote, Gen X flannel and beard, boomer gray hair, visor and cane.
+
+## Art
+All art is currently drawn from shapes in code, as a stand-in. Swapping in real art means replacing the draw calls in `person.gd` and `truck_scene.gd` with sprites; game logic doesn't change. Options: free CC0 packs (e.g. Kenney), cheap itch.io packs, or a commissioned illustrator for a consistent look. AI image tools are fine for concept art; check their licensing before shipping anything made with them.
+
+## Saving
+One save slot, written at the end of each day (`user://savegame.json`), plus the UI's chosen spot, prices and stock. Today's weather and headlines are rebuilt from the run's seed, so a loaded day matches the one you left. Writes go to a temp file first, then get renamed into place. A damaged or old-version save is ignored. "New game" asks before erasing the save, and losing a run deletes it.
+
+## AI dialogue (planned)
+**Goal:** more realistic turn-by-turn conversations without running costs for you, since others may play.
+
+**Approach:** a swappable dialogue layer. AI only writes words. Sales, prices and tips stay in the tested sim; at most a small, bounded mood nudge. Sources, in order:
+1. **Shipped library (default).** Use AI once, during development, to write thousands of lines tagged by generation, situation, weather and mood, and ship them as data. Free to play, works offline, much more variety than today.
+2. **Local model (optional).** If the player runs a local model (e.g. via Ollama), the game talks to it on their machine. No cost to anyone, but it's a multi-GB download, needs a decent computer, and small models are weaker at staying in character.
+3. **Bring your own key (optional).** Players who want the best quality paste their own API key and pay for their own use.
+
+The game always falls back to the shipped library, so it never breaks. A game must never ship with a built-in API key, because anyone can extract it.
+
+## Architecture (Godot 4.7, GDScript)
+- **Autoloads:** `Content` (loads all `data/*.json`; owns `Cpi` and `Economy`) and `GameState` (run state, day flow, saving).
+- **Sim** (`scripts/sim/`, no UI): `cpi.gd`, `economy.gd`, `demand.gd`, `shift.gd` (one customer at a time; hands-on and autopilot share it), `game_calendar.gd`.
+- **UI** (`scripts/ui/`): `main.gd` builds every screen in code; `palette.gd` holds the theme; `truck_scene.gd` and `person.gd` draw the scene.
+- **Data** (`data/`): drinks, treats, locations, weather, events, generations, characters, dialogue, difficulties, cpi. No game content is hard-coded in scripts.
+- **Launch:** the editor's Play button, or `./run.sh` (imports first, since a fresh checkout otherwise fails to find script classes).
+
+## Testing
+| Suite | Covers |
+|---|---|
+| `tests/run_sim_tests.gd` (headless) | CPI, economy, demand, generations, upsells, declined pitches, difficulty, event timing |
+| `tests/save_test.tscn` (headless) | Save round trip, bad files, Continue flow |
+| `tests/playthrough.tscn` | A full day clicked with real mouse events |
+| `tests/sweep.tscn` | Every location × weather × time of day, plus 12 random-seed games |
+| `tests/soak.tscn` | 40 seconds on a banner screen (catches errors that need time to appear) |
+| `tests/service_race_test.tscn` | Double presses and other timing edge cases during service |
+| `tests/keys.tscn`, `tests/screenshots.tscn` | Title keyboard controls; screenshots of each screen |
+
+All UI suites use a throwaway save file and should print zero `SCRIPT ERROR` lines.
+
+## Roadmap
+1. ~~Vertical slice: data, demand, CPI, one day loop~~
+2. ~~Hands-on service, comparisons, −/+ controls, upsells, street scene, modes, tabs, saving~~
+3. **Recurring characters in the scene:** regulars walk up, remember you, small arcs.
+4. **Staff and drama:** hiring, morale, tips choice, quits, drama events.
+5. **Dialogue library**, then optional local-model and bring-your-own-key sources.
+6. **Economy depth:** fuel, ingredient and wage events, more locations (stadium lot, farmers market, skate park), refreshed CPI data.
+7. **Polish:** truck decorating, real art, audio, balance.
+
+## Known limitations
+- Prices freeze after the CPI data ends (currently around day 80) until refreshed.
+- Regulars only speak in the end-of-day quote, picked at random rather than tied to the location.
+- Quitting mid-day and continuing replays the same day with the same customers (the day is seeded). That's fine for a cozy game, but it allows retries.
+- The menu is fixed: no custom recipes yet.
 
 ## Open questions
-- Art direction: the palette is settled (soothing pastels) and the UI is text-first, with colored chips instead of icons. Is there room for illustrated portraits later?
 - Desktop only, or touch controls too?
-- Fixed menu to start, or mixable recipes from the beginning?
+- Mixable custom drinks, or keep a fixed menu?
+- Which art route (packs vs commissioned), and when?
