@@ -17,6 +17,6 @@ The game autosaves at the end of every day (look for "Progress saved" on the wra
 
 ## Development
 - Design: [docs/DESIGN.md](docs/DESIGN.md), generation data and sources: [docs/GENERATIONS.md](docs/GENERATIONS.md)
-- Tests: `godot --headless --path . --script tests/run_sim_tests.gd` (sim logic). UI checks, each needs a display: `godot --path . tests/playthrough.tscn` (clicks through a day), `tests/sweep.tscn` (every weather/location and random seeds), `tests/soak.tscn` (40s on a banner screen), `tests/save_test.tscn` (saving and loading; uses a throwaway file, runs headless). The editor halts on any script error, so these should print no `SCRIPT ERROR` lines.
+- Tests: `godot --headless --path . --script tests/run_sim_tests.gd` (sim logic). UI checks, each needs a display: `godot --path . tests/playthrough.tscn` (clicks through a day), `tests/sweep.tscn` (every weather/location and random seeds), `tests/soak.tscn` (40s on a banner screen), `tests/save_test.tscn` (saving and loading; uses a throwaway file, runs headless), `tests/service_race_test.tscn` (double presses and other timing edge cases during service). The editor halts on any script error, so these should print no `SCRIPT ERROR` lines.
 - Refresh CPI data: `python3 tools/fetch_cpi.py 2025 2026`
 - Screenshots of each screen (needs a display): `godot --path . tests/screenshots.tscn -- <out_dir>`

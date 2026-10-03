@@ -30,6 +30,10 @@ func _check_cpi(c) -> void:
 	ok(c.cpi.value("gasoline", "2026-01") > 0.0, "gasoline CPI exists for base month")
 	ok(c.cpi.ratio("gasoline", "2026-01", "2026-01") == 1.0, "ratio at base month is 1")
 	ok(c.cpi.change("gasoline", "2026-03") > 0.08, "March 2026 gas spike is in the real data")
+	for e in c.events:
+		var season := GameCalendar.season(int(e.start_day))
+		if e.headline.to_lower().contains("spring"):
+			ok(season == "spring", "event '%s' lands in spring (day %d is %s)" % [e.headline, e.start_day, season])
 	ok(GameCalendar.month_key(1) == "2026-01" and GameCalendar.month_key(11) == "2026-02" and GameCalendar.month_key(31) == "2026-04", "calendar maps 10 days to a month")
 	ok(GameCalendar.previous_month("2026-01") == "2025-12", "previous month wraps the year")
 
@@ -157,6 +161,33 @@ func _check_shift(c) -> void:
 			if s2.serve(cu, worst, true).declined:
 				declines += 1
 	ok(trials > 5 and declines > 0, "pushing a drink they don't want gets declined sometimes (%d of %d)" % [declines, trials])
+
+	# After one "no" they stick with their order: retrying can't farm a yes.
+	var stubborn := 0
+	var retried := 0
+	for seed_value in 40:
+		var r4 := RandomNumberGenerator.new()
+		r4.seed = seed_value
+		var s4 := Shift.new(_offers(c), c.location("beach"), c.weather.types["cloudy"], 1.0, 1.0, r4, c.generations)
+		var cu4 := s4.next_customer()
+		if cu4.is_empty():
+			continue
+		var other := ""
+		var lowest := INF
+		for id in cu4.weights:
+			if id != cu4.craving and cu4.weights[id] < lowest:
+				lowest = cu4.weights[id]
+				other = id
+		if s4.serve(cu4, other, true).declined:
+			retried += 1
+			var sold_later := false
+			for attempt in 10:
+				if s4.serve(cu4, other, true).sold:
+					sold_later = true
+			if not sold_later:
+				stubborn += 1
+			ok(s4.serve(cu4, cu4.craving, true).sold, "after declining, they still take their own order") if seed_value == 0 else null
+	ok(retried > 3 and stubborn == retried, "after one no, ten more pitches never get a yes (%d of %d held firm)" % [stubborn, retried])
 
 	# Engaging with a chatty customer tips better than cutting them off.
 	var engaged_tips := 0.0

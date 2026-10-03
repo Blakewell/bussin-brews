@@ -1,6 +1,6 @@
 {
   "events": [
-    {"id": "school_fair", "start_day": 4, "duration": 2, "headline": "Spring fair season starts early", "body": "Pickup lines are packed and everybody's thirsty.",
+    {"id": "school_fair", "start_day": 32, "duration": 2, "headline": "Spring fair season kicks off", "body": "Pickup lines are packed and everybody's thirsty.",
      "effects": [{"target": "demand_location:school", "mult": 1.5}]},
     {"id": "heat_dome", "start_day": 55, "duration": 3, "headline": "Heat dome settles over the city", "body": "Anything iced is going to fly.",
      "effects": [{"target": "weather", "force": "hot"}]},

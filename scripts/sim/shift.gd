@@ -112,11 +112,14 @@ func serve(c: Dictionary, drink_id: String, engage_chat := true) -> Dictionary:
 	var out := {"sold": false, "price": 0.0, "tip": 0.0, "declined": false, "engaged": false}
 	if stock.get(drink_id, 0) <= 0:
 		return out
-	# Offering something other than what they came for can be turned down.
+	# Offering something other than what they came for can be turned down. After one "no"
+	# they stick with their order, and every pitch takes a moment, so pushing can't be spammed.
 	if drink_id != c.craving:
-		var accept := clampf(c.weights[drink_id] / maxf(c.weights[c.craving], 0.001), 0.0, 1.0)
+		var accept := 0.0 if c.get("insists", false) else clampf(c.weights[drink_id] / maxf(c.weights[c.craving], 0.001), 0.0, 1.0)
+		used += Demand.UPSELL_TIME
 		if rng.randf() >= accept:
 			result.declined += 1
+			c["insists"] = true
 			out.declined = true
 			return out
 	var o := offer(drink_id)

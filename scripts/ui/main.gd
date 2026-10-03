@@ -28,6 +28,9 @@ var _customer := {}
 var _feed := ""
 var _plan_snapshot := {}
 var _upsell_pending := false
+var _serial := 0             ## increments per customer; stale delayed callbacks check it
+var _departed_serial := -1   ## the customer we already sent away (so it happens once)
+var _resolved := false       ## this customer has been served or turned away
 var _scene: TruckScene
 var _person: Person
 var _arrived := false
@@ -583,8 +586,18 @@ func _later(seconds: float, fn: Callable) -> void:
 			fn.call())
 
 
+## Like _later, but dropped if a different customer is at the window by then.
+func _later_for_customer(seconds: float, fn: Callable) -> void:
+	var serial := _serial
+	_later(seconds, func():
+		if serial == _serial:
+			fn.call())
+
+
 func _next_customer() -> void:
 	_upsell_pending = false
+	_resolved = false
+	_serial += 1
 	_customer = _shift.next_customer()
 	for e in _shift.drain_events():
 		var p := _scene.spawn_passerby(e.gen_id)
@@ -660,7 +673,8 @@ func _build_order_panel() -> void:
 		var left: int = _shift.stock[id]
 		var b := _act_button("%s\n%s · %d left" % [o.drink.name, _money(o.price), left], menu, func(): _serve(id, c.wants_chat))
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		if left <= 0:
+		# Sold out, or they already said no to a suggestion and want what they ordered.
+		if left <= 0 or (c.get("insists", false) and id != c.craving):
 			b.set_meta("sold_out", true)
 	for b in _action_buttons:
 		if b.has_meta("sold_out"):
@@ -676,6 +690,8 @@ func _cup_color(drink_id: String) -> Color:
 
 
 func _serve(drink_id: String, engage: bool) -> void:
+	if _resolved or not _arrived or _customer.is_empty():
+		return  # already served (e.g. a double press) or still walking up
 	var c := _customer
 	var out := _shift.serve(c, drink_id, engage)
 	var drink := Content.drink(drink_id)
@@ -683,8 +699,9 @@ func _serve(drink_id: String, engage: bool) -> void:
 		var declines: Array = Content.dialogue[c.gen_id].decline
 		var line: String = declines[hash(c.name + drink_id) % declines.size()]
 		_person.say(line, 2.4)
-		_feed = "%s said no to the %s. They're still waiting for their order." % [c.name, drink.name]
+		_feed = "%s said no to the %s and will stick with what they ordered." % [c.name, drink.name]
 		_update_header()
+		_build_order_panel()
 		return
 	if not out.sold:
 		_feed = "Out of %s." % drink.name
@@ -692,6 +709,7 @@ func _serve(drink_id: String, engage: bool) -> void:
 		return
 	var tip_text := " + %s tip" % _money(out.tip) if out.tip > 0.0 else ""
 	var chat_text := " (chatted, which took a while)" if out.engaged else ""
+	_resolved = true
 	_feed = "Sold %s to %s: %s%s%s." % [drink.name, c.name, _money(out.price), tip_text, chat_text]
 	_person.clear_say()
 	_scene.hand_over(_person, _cup_color(drink_id))
@@ -701,19 +719,27 @@ func _serve(drink_id: String, engage: bool) -> void:
 		_upsell_pending = true
 		_build_upsell_panel()
 	else:
-		_later(0.5, _depart)
+		_clear_panel()
+		_later_for_customer(0.5, _depart)
 
 
 ## The customer leaves with their cup and the next one steps up.
 func _depart(sad := false) -> void:
+	# Only a customer who has been served or turned away leaves, and only once. This makes a
+	# double press (or a late timer) harmless: the next customer hasn't been served yet.
+	if not _resolved or _departed_serial == _serial:
+		return
+	_departed_serial = _serial
 	if is_instance_valid(_person):
 		_scene.send_away(_person, sad)
 	_next_customer()
 
 
 func _turn_away() -> void:
-	if _customer.is_empty() or not is_instance_valid(_person):
+	# Only someone still waiting to be served can be turned away.
+	if _customer.is_empty() or not is_instance_valid(_person) or _resolved or not _arrived:
 		return
+	_resolved = true
 	_shift.skip(_customer)
 	_feed = "You waved %s along." % _customer.name
 	_person.say("Oh. Okay.", 1.0)
@@ -744,6 +770,9 @@ func _build_upsell_panel() -> void:
 
 
 func _upsell(treat_id: String) -> void:
+	if not _upsell_pending:
+		return
+	_upsell_pending = false
 	var c := _customer
 	var treat := Content.item(treat_id)
 	var out := _shift.upsell(c, treat_id)
@@ -759,7 +788,7 @@ func _upsell(treat_id: String) -> void:
 		_person.say(no[hash(c.name + treat_id) % no.size()], 1.6)
 		_feed = "%s passed on the %s." % [c.name, treat.name]
 	_update_header()
-	_later(1.0, _depart)
+	_later_for_customer(1.0, _depart)
 
 
 # --- results ---------------------------------------------------------------
