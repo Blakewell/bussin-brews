@@ -10,6 +10,7 @@ func _ready() -> void:
 	GameState.save_path = TEST_PATH
 	GameState.delete_save()
 	_round_trip()
+	_tip_reputation()
 	_bad_files()
 	await _ui_flow()
 	GameState.delete_save()
@@ -63,6 +64,34 @@ func _round_trip() -> void:
 	ok(next.day == 4 and GameState.day == 5, "can play day 4 after loading")
 
 
+func _tip_reputation() -> void:
+	print("Tip modes and reputation")
+	var runs := {}
+	for mode in ["jar", "screen"]:
+		GameState.new_game(33, "easy")
+		var plan := {"location_id": "beach", "tip_mode": mode, "treats": [], "offers": []}
+		for d in Content.drinks:
+			plan.offers.append({"drink_id": d.id, "price": Content.economy.fair_price(d, "2026-01"), "servings": 20})
+		var days: Array = []
+		for i in 10:
+			days.append(GameState.run_day(plan))
+		var tips := 0.0
+		var served := 0
+		for r in days:
+			tips += r.tips
+			served += r.shift.served
+		runs[mode] = {"day1": days[0], "rep": GameState.reputation, "tips": tips, "served": served}
+	var j1: Dictionary = runs.jar.day1
+	var s1: Dictionary = runs.screen.day1
+	ok(j1.shift.served == s1.shift.served, "on the same day, the tip setup doesn't change who shows up (%d served either way)" % j1.shift.served)
+	ok(s1.tip_annoyed > 0 and j1.tip_annoyed == 0, "only the tip screen annoys anyone (%d of %d)" % [s1.tip_annoyed, s1.shift.served])
+	ok(runs.screen.rep < runs.jar.rep, "after 10 days the tip screen leaves a lower reputation (%.3f vs %.3f)" % [runs.screen.rep, runs.jar.rep])
+	# The per-customer tip lift (~1.12x) is checked in run_sim_tests.gd over ~3,000 customers;
+	# 10 days here is only ~100 tips, too few to see a 12% difference reliably.
+	GameState.new_game(33, "easy")
+	ok(GameState.run_day(_plan()).tip_mode == "jar", "tip jar is the default")
+
+
 func _bad_files() -> void:
 	print("Bad files")
 	var f := FileAccess.open(TEST_PATH, FileAccess.WRITE)
@@ -94,7 +123,13 @@ func _ui_flow() -> void:
 	await get_tree().create_timer(0.2).timeout
 	_find(main, "Breeze through the day").pressed.emit()
 	await get_tree().create_timer(0.4).timeout
-	ok(GameState.has_save() and GameState.save_summary().day == 2, "finishing a day autosaves (now day 2)")
+	ok(not GameState.has_save(), "finishing a day does not save on its own")
+	var save_btn := _find(main, "Save progress")
+	ok(save_btn != null, "the wrap-up has a Save progress button")
+	save_btn.pressed.emit()
+	await get_tree().create_timer(0.1).timeout
+	ok(GameState.has_save() and GameState.save_summary().day == 2, "pressing Save saves the run (now day 2)")
+	ok(save_btn.text == "Saved" and save_btn.disabled, "the button confirms it saved")
 	var saved_cash := GameState.cash
 	main._show_title()
 	await get_tree().create_timer(0.3).timeout
@@ -107,9 +142,24 @@ func _ui_flow() -> void:
 	_find(main, "Plan the day").pressed.emit()
 	await get_tree().create_timer(0.2).timeout
 	ok(_find(main, "Serve customers") != null, "planning works after continuing")
+	ok(main._qty_step == 5, "quantity step defaults to 5")
+	main._qty_step = 3
+	var before: int = main._servings["boba"]
+	var plus: Button = main._serving_labels["boba"].get_parent().get_child(2)
+	plus.pressed.emit()
+	ok(main._servings["boba"] == before + 3, "with step 3, + adds 3 servings (%d -> %d)" % [before, main._servings["boba"]])
+	main._qty_step = 1
+	var minus: Button = main._serving_labels["boba"].get_parent().get_child(0)
+	minus.pressed.emit()
+	ok(main._servings["boba"] == before + 2, "with step 1, − removes 1")
 	# Losing the run clears the save.
 	GameState.cash = 5.0
-	main._autosave()
+	main._last_result = GameState.last_result()
+	main._last_result["shift"] = {"sold": {}, "served": 0, "arrivals": 0, "lost_to_stockout": 0, "lost_to_line": 0, "declined": 0, "treat_revenue": 0.0, "tipped": 0, "tip_annoyed": 0, "upsell_attempts": 0, "upsell_declined": 0}
+	main._last_result["quip"] = {"character": Content.characters[0], "line": "test"}
+	main._last_result["chatter"] = {}
+	main._last_result["rep_change"] = 0.0
+	main._show_results()
 	ok(not GameState.has_save(), "game over deletes the save")
 	main.queue_free()
 

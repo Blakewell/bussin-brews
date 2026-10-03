@@ -1,172 +1,552 @@
 {
   "gen_alpha": {
-    "great": [
-      "+1000 aura for this truck fr.",
-      "This drink is mogging every other drink.",
-      "Six sevennnn! It's so good."
+    "order": [
+      "Can I get a %s? My mom said I could.",
+      "One %s please! Pure aura.",
+      "%s! Six seven!",
+      "Can I get a %s? I'm aura farming today.",
+      "One %s, unc. Make it tuff.",
+      "%s please. My friend said it's goated.",
+      "Can I have a %s? I got my allowance.",
+      "I need a %s before my brother fanum taxes my snacks.",
+      "One %s! Is that the sigma drink?",
+      "Um, can I get a %s? Not a mid one."
     ],
-    "ok": [
-      "It's alright. Mid aura.",
-      "Kinda sigma, kinda not."
-    ],
-    "bad": [
-      "That wait was so Ohio.",
-      "-1000 aura for running out. Unc, why."
+    "decline": [
+      "Nah, that's so Ohio.",
+      "That one has no rizz. I want what I said.",
+      "That's chopped. No thanks.",
+      "Negative aura. I'll get my first one.",
+      "My mom would say no to that.",
+      "That's an NPC drink.",
+      "Nope, I'm locked in on mine.",
+      "That looks cooked, ngl.",
+      "I said what I said, unc.",
+      "Six seven... no. Just my order."
     ],
     "chat": [
       "Do you know what six seven means? Nobody does. Six seven!",
       "My dad's gonna fanum tax this, watch.",
-      "Is this truck aura farming? Because it's working."
+      "Is this truck aura farming? Because it's working.",
+      "I lost so much aura at recess today. Long story.",
+      "My teacher said my essay was cooked. I think that's good?",
+      "Unc, do you play Roblox? You should.",
+      "I'm saving up for a Stanley. A pink one.",
+      "My little sister has negative aura. She's five.",
+      "My mom says everything is 'slay.' It's so cringe.",
+      "I got picked first in PE. That's like plus a million aura."
     ],
-    "order": [
-      "Can I get a %s? My mom said I could.",
-      "One %s please! Pure aura.",
-      "%s! Six seven!"
+    "great": [
+      "+1000 aura for this truck fr.",
+      "This drink is mogging every other drink.",
+      "Six sevennnn! It's so good.",
+      "That was goated. Ten out of ten.",
+      "This is the most sigma drink ever.",
+      "Infinite aura. I'm telling everybody at school.",
+      "Let him cook! This is tuff.",
+      "This drink has crazy rizz.",
+      "That was actually so good. W truck.",
+      "Peak. Absolute peak."
     ],
-    "decline": [
-      "Nah, that's so Ohio.",
-      "That one has no rizz. I want what I said."
+    "ok": [
+      "It's alright. Mid aura.",
+      "Kinda sigma, kinda not.",
+      "Solid. Like a six. Seven? Six seven.",
+      "It was fine. Not goated.",
+      "Mid, but the good kind of mid.",
+      "Okay drink, okay aura.",
+      "Not bad, unc. Not tuff either.",
+      "It's chill. My friend's mom makes better though.",
+      "Seven out of ten. Wait, six. Six seven.",
+      "Decent. I'd get it again maybe."
+    ],
+    "bad": [
+      "That wait was so Ohio.",
+      "-1000 aura for running out. Unc, why.",
+      "This line is cooked.",
+      "I waited so long I almost turned Gen Z.",
+      "You ran out? That's chopped.",
+      "Negative aura truck today.",
+      "That's an L, no cap.",
+      "My whole recess was in this line.",
+      "This line has NPC energy.",
+      "I'm telling my mom we're going to the other truck."
     ],
     "upsell_yes": [
       "Okay, that's a W. Mom, can I?",
-      "Bet. Aura points."
+      "Bet. Aura points.",
+      "Say less. Add it.",
+      "That's goated, yes please.",
+      "Mom said one treat. This is the one.",
+      "Ooh, tuff. Okay.",
+      "+500 aura, I'll take it.",
+      "Six seven! Yes!",
+      "Fine, let him cook.",
+      "Yes! That's sigma."
     ],
     "upsell_no": [
       "I only have my allowance.",
-      "My mom said only one thing."
+      "My mom said only one thing.",
+      "Nah, I'm saving for a Stanley.",
+      "That's too much money, unc.",
+      "I'm good. My brother would fanum tax it anyway.",
+      "No thanks, I already had like six snacks.",
+      "Can't. Dentist tomorrow.",
+      "Nope. Locked in on the drink.",
+      "My mom said no sugar after three.",
+      "Next time. I'm broke."
+    ],
+    "tip_screen": [
+      "Why is it asking me for money again?",
+      "Twenty-five percent? Of my allowance?",
+      "Mom, what do I press?",
+      "I'm pressing 'no tip.' Sorry, unc.",
+      "The screen is pressuring me. Negative aura.",
+      "What's a tip? Is it like a fee?",
+      "That screen is so Ohio.",
+      "I'm eleven. I can't do percentages.",
+      "Why does the iPad want my money?",
+      "Skip. Skip. Where's skip?"
     ]
   },
   "gen_z": {
-    "great": [
-      "This was bussin fr, no cap.",
-      "Y'all ate and left no crumbs."
-    ],
-    "ok": [
-      "It's giving... fine. Lowkey mid.",
-      "Not mad at it, ngl."
-    ],
-    "bad": [
-      "The wait? Not it. Big L.",
-      "Sold out?? Bro."
-    ],
-    "chat": [
-      "wait are you on TikTok? do you have a TikTok? you should have a TikTok"
-    ],
     "order": [
       "Can I get a %s? Lowkey need it.",
-      "%s, please. No cap, I'm so thirsty."
+      "%s, please. No cap, I'm so thirsty.",
+      "Bestie, one %s.",
+      "Let me get a %s. It's giving hydration.",
+      "One %s, please. I'm in my iced drink era.",
+      "Can I get a %s? Deadass been craving it all day.",
+      "%s please. Main character energy only.",
+      "Hi, um, %s? Sorry, my social battery is at two percent.",
+      "One %s. If it slaps I'm posting it.",
+      "Can I get a %s? That's my whole lunch, ngl."
     ],
     "decline": [
       "Hmm, not feeling that. I'll pass.",
-      "Nah, that's giving mid. I'm good."
+      "Nah, that's giving mid. I'm good.",
+      "That's an ick, sorry.",
+      "I'm gonna stick with my order, bestie.",
+      "Respectfully, no.",
+      "Not my vibe, ngl.",
+      "That's sus. I'll take mine.",
+      "Pass. I know what I want.",
+      "Lowkey no.",
+      "You're delulu if you think I'm switching."
+    ],
+    "chat": [
+      "Wait, are you on TikTok? You should be on TikTok.",
+      "Okay but who designed your truck? It's lowkey aesthetic.",
+      "I'm so delulu, I thought today was Friday.",
+      "My boss gave me the ick today. Anyway.",
+      "Is this place Instagram-able? Asking for content.",
+      "Bestie, my roommate ate my leftovers again.",
+      "I'm in my saving-money era. Clearly it's not working.",
+      "Your playlist slaps. What is this?",
+      "I have three exams this week. Pray for me.",
+      "Do y'all do a loyalty card? I need the perks."
+    ],
+    "great": [
+      "This was bussin fr, no cap.",
+      "Y'all ate and left no crumbs.",
+      "Okay this slaps. Ten out of ten.",
+      "It's giving five stars.",
+      "Highkey obsessed.",
+      "Main character drink, honestly.",
+      "W truck, no notes.",
+      "That understood the assignment.",
+      "Deadass the best thing I've had all week.",
+      "I'm posting this. It's that good."
+    ],
+    "ok": [
+      "It's giving... fine. Lowkey mid.",
+      "Not mad at it, ngl.",
+      "Valid. Not life-changing, but valid.",
+      "It's a vibe, I guess.",
+      "Mid, but I'd still get it.",
+      "Solid. Like a six out of ten.",
+      "It hit the spot, ngl.",
+      "Fine. Not a slay, not an L.",
+      "It's okay. I've had worse.",
+      "Decent. The cup's cute though."
+    ],
+    "bad": [
+      "The wait? Not it. Big L.",
+      "Sold out?? Bro.",
+      "That line gave me the ick.",
+      "This was a flop, no cap.",
+      "Respectfully, that took forever.",
+      "Not the vibe today.",
+      "I'm lowkey disappointed.",
+      "That's an L for the truck.",
+      "I waited so long my iced drink era ended.",
+      "Deadass, I almost left."
     ],
     "upsell_yes": [
       "Ooh, yes, add that.",
-      "Say less, put it on there."
+      "Say less, put it on there.",
+      "Bet, I'll take one.",
+      "Okay you got me.",
+      "Highkey yes.",
+      "It's giving dessert. Yes.",
+      "Fine, I deserve it.",
+      "Valid. Add it.",
+      "Lowkey been wanting one.",
+      "Yes, bestie."
     ],
     "upsell_no": [
       "I'm good, thanks.",
-      "Nah, I'm broke lol."
+      "Nah, I'm broke lol.",
+      "I'm in my saving era.",
+      "Not today, bestie.",
+      "My bank account said no.",
+      "Pass, I just ate.",
+      "Lowkey tempting, but no.",
+      "I'm good, ngl.",
+      "Can't, I'm on a budget.",
+      "Maybe next time."
+    ],
+    "tip_screen": [
+      "Why is the tip screen starting at twenty-five percent?",
+      "I'm literally just getting a drink.",
+      "It's giving guilt trip.",
+      "The iPad flip is so awkward.",
+      "I'm hitting custom and putting a dollar.",
+      "Me pressing 'no tip' while you watch... the ick.",
+      "Tipping for a drink through a window? Hm.",
+      "Okay, the screen is kinda sus.",
+      "My bank account cannot handle tip culture.",
+      "Why do I feel judged by a tablet?"
     ]
   },
   "millennial": {
-    "great": [
-      "Okay this is literally goals.",
-      "I'm dead, this is fire."
-    ],
-    "ok": [
-      "Honestly? It's fine. Adulting is exhausting.",
-      "Solid. I've had worse oat milk."
-    ],
-    "bad": [
-      "I can't even. The line!",
-      "This is why I have anxiety."
-    ],
-    "chat": [
-      "Sorry, one sec, my meeting ran over. Do you take Venmo?"
-    ],
     "order": [
       "Hi! One %s, please. I'm running on fumes.",
-      "Can I do a %s? Adulting is exhausting."
+      "Can I do a %s? Adulting is exhausting.",
+      "Could I get a %s? It's been a whole week, and it's Tuesday.",
+      "One %s, please. I'm literally so hangry.",
+      "Can I get a %s? Treat yo self, right?",
+      "Hi, a %s please. My toddler is in the car.",
+      "I'll do a %s. Love a food truck.",
+      "Can I get a %s? I've been on calls since seven.",
+      "One %s, please. Self-care, am I right?",
+      "Ooh, a %s please. I'm so here for it."
     ],
     "decline": [
       "Oh, I'm good, thanks. Maybe next time!",
-      "Ehh, not really my vibe. Rain check?"
+      "Ehh, not really my vibe. Rain check?",
+      "I'll stick with what I ordered, sorry!",
+      "I can't even with choices right now.",
+      "Thanks, but I know what I want.",
+      "That's a little extra for me today.",
+      "Not today, but it sounds fun!",
+      "I'm literally committed to my order.",
+      "Hmm, I'll pass, but thank you!",
+      "No thanks, I'm basic and proud."
+    ],
+    "chat": [
+      "Sorry, one sec, my meeting ran over. Do you take Venmo?",
+      "Is this a small business? I love supporting small businesses.",
+      "Do you have a website? I'll leave a review.",
+      "My kid has soccer at four and I have a deadline at five. Anyway.",
+      "I've been meaning to try this truck for weeks. FOMO is real.",
+      "Do you guys have an oat milk option? Life-changing.",
+      "I'm doing a no-spend month. Clearly.",
+      "Wait, is your truck on Instagram? Can I tag you?",
+      "Daycare called. Again. It's fine. Everything's fine.",
+      "I used to want a food truck. Living my dream through you."
+    ],
+    "great": [
+      "Okay this is literally goals.",
+      "I'm dead, this is fire.",
+      "This is everything. I'm obsessed.",
+      "Treat yo self, and I did. Worth it.",
+      "Living my best life right now.",
+      "Honestly this made my whole week.",
+      "So good. I'm leaving a review.",
+      "This is a whole mood.",
+      "I'm shook. That was amazing.",
+      "Ten out of ten, would adult again."
+    ],
+    "ok": [
+      "Honestly? It's fine. Adulting is exhausting.",
+      "Solid. I've had worse oat milk.",
+      "It's good! Not life-changing, but good.",
+      "Totally fine for a Tuesday.",
+      "It hit the spot. Kind of.",
+      "Pretty decent, honestly.",
+      "It's okay. My Keurig is jealous.",
+      "Not bad. I'd come back.",
+      "It's basic, but I'm basic.",
+      "Meh. It's a mood."
+    ],
+    "bad": [
+      "I can't even. The line!",
+      "This is why I have anxiety.",
+      "I literally have a meeting in five minutes.",
+      "Out of my drink? I'm devastated.",
+      "I'm too tired for this wait.",
+      "Ugh, now I'm so hangry.",
+      "That took forever. My kid is screaming.",
+      "This is not the self-care I needed.",
+      "Kind of a fail today, sorry.",
+      "I'll still leave a review, but... three stars."
     ],
     "upsell_yes": [
       "Sure, why not. Treat yourself, right?",
-      "Okay, you got me."
+      "Okay, you got me.",
+      "Treat yo self! Yes.",
+      "Honestly, I deserve it.",
+      "Ooh, yes. That's going in the self-care budget.",
+      "Sure! My kid will want one too.",
+      "I'm so here for it.",
+      "Fine, twist my arm.",
+      "Yes, please. It's been a week.",
+      "Love that. Add it!"
     ],
     "upsell_no": [
       "Oh, I'm trying to be good today.",
-      "I'm good, but thanks!"
+      "I'm good, but thanks!",
+      "I'm on a whole wellness thing right now.",
+      "Can't, I'm doing a no-spend month.",
+      "Ooh, tempting, but no.",
+      "My trainer would kill me.",
+      "Not today, I already had avocado toast.",
+      "I'm good, thank you!",
+      "Maybe next time! Budget week.",
+      "I'll pass, but it looks amazing."
+    ],
+    "tip_screen": [
+      "Oh, the tablet flip. Cool cool cool.",
+      "I always feel guilty hitting 'no tip.'",
+      "Twenty percent for a drink? Is that a thing now?",
+      "I just tip to avoid the awkward eye contact.",
+      "When did everything start asking for tips?",
+      "Okay, the screen spun around and now I'm stressed.",
+      "I'll do fifteen and feel bad about it.",
+      "Tip culture is out of control, honestly.",
+      "I already paid for the drink... and now this?",
+      "I want to support you, but the screen is a lot."
     ]
   },
   "gen_x": {
-    "great": [
-      "Not bad. Not bad at all.",
-      "Okay, that's actually pretty good. Whatever."
-    ],
-    "ok": [
-      "Yeah, it's fine.",
-      "Meh. It's a drink."
-    ],
-    "bad": [
-      "Typical. As if.",
-      "Twenty minutes for this? Seriously."
-    ],
-    "chat": [
-      "You know, I had a truck like this in college. Well, a van. It's a long story."
-    ],
     "order": [
       "Gimme a %s.",
-      "Yeah, a %s. Whatever you've got."
+      "Yeah, a %s. Whatever you've got.",
+      "One %s. Keep it simple.",
+      "I'll take a %s. Don't make it fancy.",
+      "A %s. And no, I don't need a punch card.",
+      "Let me get a %s. I've got carpool in ten.",
+      "%s, please. Make it quick, I'm double parked.",
+      "A %s. My kid says it's rad, so.",
+      "One %s. That's my one treat today.",
+      "A %s. Sweet."
     ],
     "decline": [
       "Nah. Forget it.",
-      "That? No. I'll pass."
+      "That? No. I'll pass.",
+      "As if. Just my order, thanks.",
+      "Whatever. Just what I asked for.",
+      "No thanks, I'm not trying new stuff today.",
+      "Bogus. Stick with mine.",
+      "Pass. I know what I like.",
+      "Meh. My order's fine.",
+      "Don't get cute. Just the usual.",
+      "Nope. Not falling for that."
+    ],
+    "chat": [
+      "You know, I had a truck like this in college. Well, a van. It's a long story.",
+      "I made a mixtape for my wife once. Best twelve bucks I ever spent.",
+      "Back in my day we drank coffee out of a can and liked it.",
+      "Is that Nirvana on the radio? No? Huh.",
+      "I've been driving carpool since six a.m. Don't ask.",
+      "My kid says you're 'bussin.' I have no idea what that means.",
+      "We didn't have phones. We had a curfew and a bike.",
+      "I'm on my third rewrite of my retirement plan.",
+      "You ever see Reality Bites? You'd like it.",
+      "My parents are moving in with us. So that's going great."
+    ],
+    "great": [
+      "Not bad. Not bad at all.",
+      "Okay, that's actually pretty good. Whatever.",
+      "That was rad. Don't let it go to your head.",
+      "Huh. That's da bomb, as they say.",
+      "Sweet. Seriously good.",
+      "I'd come back. That's high praise from me.",
+      "Booyah. Good stuff.",
+      "That was all that and a bag of chips.",
+      "Better than the stuff I had in '94.",
+      "Okay, you earned it. Nice work."
+    ],
+    "ok": [
+      "Yeah, it's fine.",
+      "Meh. It's a drink.",
+      "It's okay. I'm not mad at it.",
+      "Fine. Whatever works.",
+      "Decent. I've had worse in airports.",
+      "It did the job.",
+      "Not bad. Not great. Fine.",
+      "Eh, it's alright.",
+      "Sure. It's a beverage.",
+      "Middle of the road. Like my minivan."
+    ],
+    "bad": [
+      "Typical. As if.",
+      "Twenty minutes for this? Seriously.",
+      "Bogus. You ran out.",
+      "That line was a total drag.",
+      "I've got places to be, man.",
+      "Not cool. Really not cool.",
+      "My bad for expecting speed.",
+      "What a bummer.",
+      "Whatever. I'll just go home.",
+      "That's lame. Real lame."
     ],
     "upsell_yes": [
       "Fine. Sure.",
-      "Yeah, okay. Why not."
+      "Yeah, okay. Why not.",
+      "Sweet. Throw it in.",
+      "Eh, twist my arm.",
+      "Sure, I earned it.",
+      "Rad. One of those.",
+      "Okay, but don't tell my doctor.",
+      "Sure. It's been a day.",
+      "Word. Add it.",
+      "Alright, alright."
     ],
     "upsell_no": [
       "Nah, just the drink.",
-      "Pass."
+      "Pass.",
+      "I'm good.",
+      "Not today.",
+      "As if I need that.",
+      "My cholesterol says no.",
+      "Don't push it.",
+      "I'll pass, thanks.",
+      "Whatever, no thanks.",
+      "Nope, I'm watching my wallet."
+    ],
+    "tip_screen": [
+      "Thirty percent? For handing me a cup? Nope.",
+      "Who decided everything gets a tip screen?",
+      "I'm hitting 'custom' and typing zero. Sorry.",
+      "This is getting out of hand.",
+      "Back in my day, tips went in a jar. Voluntarily.",
+      "The screen is guilt-tripping me. Not cool.",
+      "I tip at restaurants. This is a window.",
+      "Whatever. Fine. Fifteen.",
+      "Don't flip that thing around on me.",
+      "Tipping culture has gone totally bogus."
     ]
   },
   "boomer": {
-    "great": [
-      "Well, that was groovy! Right on!",
-      "Cool beans, young fella!"
-    ],
-    "ok": [
-      "That was swell.",
-      "Not bad at all, kiddo."
-    ],
-    "bad": [
-      "In my day service was a lot quicker!",
-      "Well, I never!"
-    ],
-    "chat": [
-      "Did I ever tell you about my '78 Buick? Now that was a vehicle.",
-      "You remind me of my grandson. Do you know how to fix a printer?"
-    ],
     "order": [
-      "I'll have the %s, young man.",
-      "One %s, please, dear. Do you take cash?"
+      "I'll have the %s, dear.",
+      "One %s, please, dear. Do you take cash?",
+      "Could I get a %s? My granddaughter recommended it.",
+      "I'll try the %s. Something new, right on.",
+      "One %s, please. Is it very sweet? Good.",
+      "A %s for me, sweetheart. Do you take checks?",
+      "Let me have a %s. Back in my day it was a nickel.",
+      "I'd like a %s, please. Not too hot, hon.",
+      "One %s, please. Keep on truckin'!",
+      "Well, I'll have a %s. Isn't this neat-o."
     ],
     "decline": [
       "Oh, no thank you, I'll stick with what I asked for.",
-      "That's not what I wanted, sweetheart."
+      "That's not what I wanted, sweetheart.",
+      "Gee whiz, no, just my usual.",
+      "Heavens, no. My order, please.",
+      "I don't think so, dear.",
+      "That sounds a bit fancy for me.",
+      "No thank you, I know what I like.",
+      "Oh my, no. I'll stick to my guns.",
+      "My doctor wouldn't approve.",
+      "Not today, hon."
+    ],
+    "chat": [
+      "Did I ever tell you about my '78 Buick? Now that was a vehicle.",
+      "You remind me of my grandson. Do you know how to fix a printer?",
+      "Back in my day, the soda fountain was the place to be.",
+      "My grandkids FaceTime me. I keep holding the phone to my ear.",
+      "Is this one of those food trucks from the TV?",
+      "I almost went to Woodstock. Well, I heard about it.",
+      "Do you know where I can get my hearing aid fixed?",
+      "My husband had a truck. Drove it to every Sooners game.",
+      "The weather's been something, hasn't it? Reminds me of '74.",
+      "Let me show you pictures of my grandbabies. I have three hundred."
+    ],
+    "great": [
+      "Well, that was groovy! Right on!",
+      "Cool beans, dear!",
+      "Far out! That hit the spot.",
+      "That was just swell.",
+      "Outta sight, sweetheart!",
+      "Neat-o. I'm telling the bridge club.",
+      "Reminds me of the soda fountain on Main Street.",
+      "That's the bee's knees.",
+      "Golly, that was good.",
+      "Keep on truckin', you're doing great."
+    ],
+    "ok": [
+      "That was swell.",
+      "Not bad at all, kiddo.",
+      "Fair enough! Now where did I put my reading glasses...",
+      "It was nice, dear. A little sweet.",
+      "Pretty good. In my day it cost a dime.",
+      "That'll do.",
+      "It's fine, hon. Very modern.",
+      "Nice enough. I'll be back Tuesday.",
+      "Could've used a little more sugar.",
+      "Decent, dear. Decent."
+    ],
+    "bad": [
+      "In my day service was a lot quicker!",
+      "Well, I never!",
+      "Oh my stars, such a long wait.",
+      "What a bummer, dear.",
+      "Out of what I wanted? Well, I never.",
+      "I've been standing so long my knees hurt.",
+      "Goodness gracious, that took forever.",
+      "I'll have to tell the bridge club about this.",
+      "Heavens to Betsy, what a line.",
+      "That was not groovy at all."
     ],
     "upsell_yes": [
       "Oh, that sounds lovely, dear.",
-      "Well, twist my arm!"
+      "Well, twist my arm!",
+      "Right on, I'll take one.",
+      "Golly, why not.",
+      "Oh, I shouldn't. But I will.",
+      "That's swell, add it.",
+      "A treat! Don't tell my doctor.",
+      "Sure, sweetheart, one for the road.",
+      "Groovy, yes please.",
+      "Well, aren't you a good salesperson."
     ],
     "upsell_no": [
       "Oh no, I'll ruin my dinner.",
-      "Not today, sweetheart."
+      "Not today, sweetheart.",
+      "My doctor says no sweets.",
+      "Heavens, no, I'm full.",
+      "I've got my own cookies at home, dear.",
+      "No thank you, hon.",
+      "My blood sugar wouldn't like it.",
+      "Maybe next time, dear.",
+      "Oh, I couldn't.",
+      "That's too rich for me."
+    ],
+    "tip_screen": [
+      "Now what's this screen asking me?",
+      "Twenty percent? For a cup of coffee?",
+      "I don't have my glasses. Which button is 'no'?",
+      "In my day you left a quarter on the counter.",
+      "Do I have to tip the machine?",
+      "Can I just put a dollar in a jar instead?",
+      "Goodness, everything wants a tip these days.",
+      "I'm not sure I like being asked like that.",
+      "I'll tip when I want to tip, dear.",
+      "What happened to just saying thank you?"
     ]
   }
 }

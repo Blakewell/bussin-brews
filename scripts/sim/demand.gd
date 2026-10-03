@@ -9,6 +9,15 @@ const UPSELL_BASE := 0.30          ## chance a typical customer adds a treat the
 const UPSELL_TIME := 0.25          ## service slots each add-on offer costs (pushing slows the line)
 const AUTO_UPSELL_SKILL := 0.6     ## autopilot staff are less persuasive than you
 
+# Tips. "jar": people tip on their own (generation tip_chance, tip_pct).
+# "screen": a checkout tip screen. Calibrated in data so total tips run ~12% above a jar
+# (digital prompts vs traditional), but some people are annoyed (Bankrate 2025, by generation)
+# and they tip less and hurt your reputation.
+const SCREEN_TIP_PCT := 0.15       ## cafe tips average ~15% when given (Square, 2025)
+const ANNOYED_TIP_PCT := 0.10      ## annoyed customers pick the lowest option, if anything
+const ANNOYED_TIP_FACTOR := 0.5    ## and tip half as often
+const TIP_SCREEN_REP_HIT := 0.015  ## reputation lost per day if every customer were annoyed (mild: tips are small next to sales)
+
 
 static func price_factor(price: float, fair: float, sensitivity: float) -> float:
 	return clampf(exp(-sensitivity * (price / fair - 1.0)), 0.05, 1.6)

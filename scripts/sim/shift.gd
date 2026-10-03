@@ -19,6 +19,8 @@ var used := 0.0          ## service slots consumed (chatty customers use extra)
 var arrivals := 0
 var remaining := 0       ## arrivals not yet processed
 var events: Array = []   ## people who didn't buy: {kind, gen_id}; drain with drain_events()
+var tip_mode := "jar"    ## "jar" or "screen" (a checkout tip screen)
+var tip_rng := RandomNumberGenerator.new()  ## separate dice for tips, so the tip setup never changes who shows up
 
 
 func _init(offer_list: Array, loc: Dictionary, wx: Dictionary, traffic_mult: float, reputation: float, random: RandomNumberGenerator, gens: Dictionary, treat_list: Array = []) -> void:
@@ -27,6 +29,7 @@ func _init(offer_list: Array, loc: Dictionary, wx: Dictionary, traffic_mult: flo
 	weather = wx
 	generations = gens
 	rng = random
+	tip_rng.seed = random.seed ^ 0x7195
 	arrivals = int(round(loc.base_traffic * Demand.ARRIVALS_PER_TRAFFIC * wx.traffic * traffic_mult * reputation))
 	remaining = arrivals
 	treat_offers = treat_list
@@ -39,7 +42,7 @@ func _init(offer_list: Array, loc: Dictionary, wx: Dictionary, traffic_mult: flo
 	result = {
 		"sold": sold, "treats_sold": treats_sold, "treat_revenue": 0.0, "upsell_attempts": 0, "upsell_declined": 0, "revenue": 0.0, "tips": 0.0, "chats": 0, "arrivals": arrivals, "served": 0,
 		"lost_to_stockout": 0, "lost_to_line": 0, "walked_away": 0, "declined": 0, "skipped": 0, "cut_short": 0,
-		"served_by_gen": {}, "tips_by_gen": {}, "chats_by_gen": {},
+		"served_by_gen": {}, "tips_by_gen": {}, "chats_by_gen": {}, "tip_annoyed": 0, "tipped": 0,
 	}
 
 
@@ -98,9 +101,10 @@ func next_customer() -> Dictionary:
 				pick -= weights[craving]
 				if pick <= 0.0:
 					break
-		var names: Array = gen.names
+		var gender := "female" if rng.randf() < 0.5 else "male"
+		var names: Array = gen.names[gender]
 		return {
-			"gen_id": gen_id, "name": names[rng.randi() % names.size()], "weights": weights,
+			"gen_id": gen_id, "gender": gender, "name": names[rng.randi() % names.size()], "weights": weights,
 			"craving": craving, "wants_chat": rng.randf() < gen.chat_chance,
 		}
 	return {}
@@ -109,7 +113,7 @@ func next_customer() -> Dictionary:
 ## Serve a drink to a customer. `engage_chat` only matters when they want to chat.
 ## Returns {sold, price, tip, declined, engaged}.
 func serve(c: Dictionary, drink_id: String, engage_chat := true) -> Dictionary:
-	var out := {"sold": false, "price": 0.0, "tip": 0.0, "declined": false, "engaged": false}
+	var out := {"sold": false, "price": 0.0, "tip": 0.0, "declined": false, "engaged": false, "annoyed": false}
 	if stock.get(drink_id, 0) <= 0:
 		return out
 	# Offering something other than what they came for can be turned down. After one "no"
@@ -135,6 +139,16 @@ func serve(c: Dictionary, drink_id: String, engage_chat := true) -> Dictionary:
 	c["sold_drink"] = drink_id
 
 	var tip_chance: float = gen.tip_chance
+	var tip_pct: float = gen.tip_pct
+	if tip_mode == "screen":
+		if tip_rng.randf() < gen.screen_annoyed:
+			out.annoyed = true
+			result.tip_annoyed += 1
+			tip_chance = gen.tip_chance * Demand.ANNOYED_TIP_FACTOR
+			tip_pct = Demand.ANNOYED_TIP_PCT
+		else:
+			tip_chance = gen.screen_tip_chance
+			tip_pct = Demand.SCREEN_TIP_PCT
 	if c.wants_chat:
 		if engage_chat:
 			tip_chance *= 1.5
@@ -145,9 +159,11 @@ func serve(c: Dictionary, drink_id: String, engage_chat := true) -> Dictionary:
 		else:
 			tip_chance *= 0.6
 			result.cut_short += 1
-	if rng.randf() < tip_chance:
-		var tip := maxf(snappedf(o.price * gen.tip_pct, 0.25), 0.25)
+	if tip_rng.randf() < tip_chance:
+		# A card tip is an exact percentage; a jar tip is coins and bills.
+		var tip := snappedf(o.price * tip_pct, 0.01) if tip_mode == "screen" else maxf(snappedf(o.price * tip_pct, 0.25), 0.25)
 		result.tips += tip
+		result.tipped += 1
 		out.tip = tip
 		_add(result.tips_by_gen, c.gen_id, tip)
 	return out

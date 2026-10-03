@@ -27,6 +27,7 @@ const SHOES := Color("3E4A57")
 const INK := Color("3E4A57")
 
 var gen_id := "millennial"
+var gender := "female"          ## "female" or "male"; looks follow it (no beards on women, no buns on men)
 var variant := 0
 var facing := 1.0
 var has_cup := false
@@ -51,9 +52,19 @@ var _sb := StyleBoxFlat.new()
 var _size := 1.0   ## kids are drawn smaller
 
 
-func setup(generation: String, seed_value: int) -> Person:
+## Beards are only for men, buns only for women.
+static func has_beard(generation: String, who: String) -> bool:
+	return generation == "gen_x" and who == "male"
+
+
+static func has_bun(generation: String, who: String) -> bool:
+	return generation == "millennial" and who == "female"
+
+
+func setup(generation: String, seed_value: int, gender_id := "") -> Person:
 	gen_id = generation
 	variant = absi(seed_value)
+	gender = gender_id if gender_id != "" else ("female" if variant % 2 == 0 else "male")
 	_skin = SKIN[variant % SKIN.size()]
 	_shirt = SHIRTS[gen_id][(variant / 3) % SHIRTS[gen_id].size()]
 	_hair = HAIR[gen_id][(variant / 5) % HAIR[gen_id].size()]
@@ -236,9 +247,10 @@ func _torso_details() -> void:
 			draw_style_box(_sb, Rect2(-11.0, -54.0, 22.0, 14.0))
 			draw_line(Vector2(-4.0, -84.0), Vector2(-4.0, -70.0), Palette.PANEL, 1.6)
 			draw_line(Vector2(4.0, -84.0), Vector2(4.0, -70.0), Palette.PANEL, 1.6)
-		"millennial":  # tote bag
-			_sb.bg_color = Palette.PEACH
-			draw_style_box(_sb, Rect2(-24.0, -52.0, 13.0, 16.0))
+		"millennial":  # tote bag for women, nothing extra for men
+			if gender == "female":
+				_sb.bg_color = Palette.PEACH
+				draw_style_box(_sb, Rect2(-24.0, -52.0, 13.0, 16.0))
 	if is_barista:
 		_sb.bg_color = Palette.ACCENT.lerp(Palette.BG, 0.3)
 		draw_style_box(_sb, Rect2(-14.0, -70.0, 28.0, 36.0))
@@ -246,32 +258,52 @@ func _torso_details() -> void:
 
 func _hair_and_accessories() -> void:
 	var head := Vector2(0, -101.0)
+	var girl := gender == "female"
 	match gen_id:
-		"gen_alpha":  # backwards cap
-			_dome(head + Vector2(0, -2.0), 15.5, _hair)
-			_dome(head + Vector2(0, -4.0), 16.0, _shirt.darkened(0.2))
-			draw_rect(Rect2(-22.0, -108.0, 10.0, 4.0), _shirt.darkened(0.3))
-		"gen_z":
+		"gen_alpha":
+			if girl:  # ponytail and a bow
+				_dome(head + Vector2(0, -2.0), 15.5, _hair)
+				draw_circle(Vector2(-16.0, -98.0), 6.5, _hair)
+				draw_colored_polygon(PackedVector2Array([Vector2(-10, -116), Vector2(-2, -112), Vector2(-10, -108)]), Palette.ACCENT)
+				draw_colored_polygon(PackedVector2Array([Vector2(6, -116), Vector2(-2, -112), Vector2(6, -108)]), Palette.ACCENT)
+			else:  # backwards cap
+				_dome(head + Vector2(0, -2.0), 15.5, _hair)
+				_dome(head + Vector2(0, -4.0), 16.0, _shirt.darkened(0.2))
+				draw_rect(Rect2(-22.0, -108.0, 10.0, 4.0), _shirt.darkened(0.3))
+		"gen_z":  # beanie and headphones; long hair shows underneath for women
+			if girl:
+				draw_rect(Rect2(-16.0, -104.0, 6.0, 22.0), _hair)
+				draw_rect(Rect2(10.0, -104.0, 6.0, 22.0), _hair)
 			_dome(head + Vector2(0, -3.0), 16.5, Palette.LAVENDER.darkened(0.05) if variant % 2 == 0 else Palette.SAGE)
 			draw_rect(Rect2(-16.5, -108.0, 33.0, 5.0), Palette.TEXT.lerp(Palette.PANEL, 0.35))
 			draw_arc(head + Vector2(0, -2.0), 17.5, PI * 1.02, PI * 1.98, 18, INK, 3.0)
 			draw_circle(Vector2(-17.0, -100.0), 4.5, INK)
 			draw_circle(Vector2(17.0, -100.0), 4.5, INK)
-		"millennial":
+		"millennial":  # glasses for everyone; a bun for women, short hair for men
 			_dome(head + Vector2(0, -2.0), 15.5, _hair)
-			draw_circle(Vector2(-3.0, -121.0), 6.5, _hair)
+			if has_bun(gen_id, gender):
+				draw_circle(Vector2(-3.0, -121.0), 6.5, _hair)
 			for ex in [-4.0, 5.0]:
 				draw_arc(Vector2(ex, -101.0), 4.8, 0.0, TAU, 14, INK, 1.4)
 			draw_line(Vector2(0.5, -101.0), Vector2(0.8, -101.0), INK, 1.4)
 		"gen_x":
 			_dome(head + Vector2(0, -3.0), 15.5, _hair)
-			var beard := PackedVector2Array([Vector2(-11, -96), Vector2(11, -96), Vector2(7, -84), Vector2(0, -81), Vector2(-7, -84)])
-			draw_colored_polygon(beard, _hair.darkened(0.05))
-			draw_arc(Vector2(1.0, -97.0), 4.0, 0.25 * PI, 0.75 * PI, 8, Palette.PANEL, 1.6)
+			if girl:  # shoulder-length hair
+				draw_rect(Rect2(-16.0, -104.0, 5.0, 18.0), _hair)
+				draw_rect(Rect2(11.0, -104.0, 5.0, 18.0), _hair)
+			if has_beard(gen_id, gender):
+				var beard := PackedVector2Array([Vector2(-11, -96), Vector2(11, -96), Vector2(7, -84), Vector2(0, -81), Vector2(-7, -84)])
+				draw_colored_polygon(beard, _hair.darkened(0.05))
+				draw_arc(Vector2(1.0, -97.0), 4.0, 0.25 * PI, 0.75 * PI, 8, Palette.PANEL, 1.6)
 		"boomer":
-			draw_circle(Vector2(-12.0, -103.0), 5.5, _hair)
-			draw_circle(Vector2(12.0, -103.0), 5.5, _hair)
-			_dome(head + Vector2(0, -6.0), 13.0, _hair)
+			if girl:  # curly gray hair
+				draw_circle(Vector2(-12.0, -103.0), 5.5, _hair)
+				draw_circle(Vector2(12.0, -103.0), 5.5, _hair)
+				_dome(head + Vector2(0, -6.0), 13.0, _hair)
+			else:  # thinning on top, gray at the sides, a mustache
+				draw_circle(Vector2(-13.0, -100.0), 4.0, _hair)
+				draw_circle(Vector2(13.0, -100.0), 4.0, _hair)
+				draw_line(Vector2(-4.0, -95.5), Vector2(6.0, -95.5), _hair.darkened(0.15), 2.5)
 			if variant % 2 == 0 and not is_barista:  # sun visor
 				_ellipse(Vector2(3, -113.0), 21.0, 4.0, Palette.PEACH.darkened(0.08))
 				draw_rect(Rect2(-15.0, -117.0, 30.0, 5.0), Palette.PEACH.darkened(0.08))

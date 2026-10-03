@@ -3,7 +3,7 @@ extends Control
 ## Text-first UI: people and places are identified by words and colored chips, not icons.
 
 const PRICE_STEP := 0.25
-const STOCK_STEP := 5
+const QTY_STEPS := [1, 3, 5]  ## choices in the plan screen's quantity dropdown
 
 var _body: VBoxContainer
 var _footer: VBoxContainer
@@ -11,6 +11,9 @@ var _plan_loc := "school"
 var _prices := {}
 var _servings := {}
 var _difficulty := "easy"
+var _qty_step := 5          ## how much −/+ changes servings
+var _tip_mode := "jar"       ## "jar" or "screen" (checkout tip screen)
+var _saved_today := false
 var _on_title := false
 var _mode_buttons: Array[Button] = []
 var _blurb: Label
@@ -97,6 +100,7 @@ func _make_scene(height: float, ambient: bool, progress: float, loc_id: String, 
 	sc.weather_id = weather_id
 	sc.progress = progress
 	sc.ambient = ambient
+	sc.tip_mode = _tip_mode
 	_body.add_child(sc)
 	return sc
 
@@ -280,17 +284,19 @@ func _continue_game() -> void:
 	# JSON turns whole numbers into floats, so restore the types the UI expects.
 	for id in extra.get("prices", {}):
 		_prices[id] = float(extra.prices[id])
+	_qty_step = int(extra.get("qty_step", 5)) if QTY_STEPS.has(int(extra.get("qty_step", 5))) else 5
+	_tip_mode = str(extra.get("tip_mode", "jar"))
 	for id in extra.get("servings", {}):
 		_servings[id] = int(extra.servings[id])
 	_show_briefing()
 
 
-## Saves at the end of each day, or clears the save when the run is over.
-func _autosave() -> void:
+## The Save button on the wrap-up. Returns true when it saved.
+func _save_progress() -> bool:
 	if GameState.is_game_over():
-		GameState.delete_save()
-	else:
-		GameState.save_game({"plan_loc": _plan_loc, "prices": _prices, "servings": _servings})
+		return false
+	return GameState.save_game({"plan_loc": _plan_loc, "prices": _prices, "servings": _servings,
+		"qty_step": _qty_step, "tip_mode": _tip_mode})
 
 
 func _start_game() -> void:
@@ -408,9 +414,33 @@ func _show_planning() -> void:
 		left.add_child(b)
 
 	var prev := GameState.last_result()
+	var right := VBoxContainer.new()
+	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	right.add_theme_constant_override("separation", 8)
+	cols.add_child(right)
+	var opts := _row(right)
+	_label("Quantity step", 15, Palette.MUTED, opts)
+	var step := OptionButton.new()
+	for i in QTY_STEPS.size():
+		step.add_item("by %d" % QTY_STEPS[i], i)
+	step.selected = QTY_STEPS.find(_qty_step)
+	step.item_selected.connect(func(i: int): _qty_step = QTY_STEPS[i])
+	opts.add_child(step)
+	var gap := Control.new()
+	gap.custom_minimum_size = Vector2(18, 0)
+	opts.add_child(gap)
+	_label("Tips", 15, Palette.MUTED, opts)
+	var tips := OptionButton.new()
+	tips.add_item("Tip jar (happier customers)", 0)
+	tips.add_item("Tip screen at checkout (more tips, some annoyed)", 1)
+	tips.selected = 0 if _tip_mode == "jar" else 1
+	tips.item_selected.connect(func(i: int):
+		_tip_mode = "jar" if i == 0 else "screen"
+		_scene.set_tip_mode(_tip_mode))
+	opts.add_child(tips)
 	var tabs := TabContainer.new()
 	tabs.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	cols.add_child(tabs)
+	right.add_child(tabs)
 	_menu_tab(tabs, "Drinks", Content.drinks, prev)
 	_menu_tab(tabs, "Baked goods (upsells)", Content.treats, prev)
 
@@ -444,8 +474,8 @@ func _menu_tab(tabs: TabContainer, title: String, items: Array, prev: Dictionary
 		_stepper(grid, d.id, _price_labels, -PRICE_STEP, PRICE_STEP, func(id: String, delta: float):
 			_prices[id] = clampf(snappedf(_prices[id] + delta, PRICE_STEP), 0.5, 25.0))
 		_label(_money(econ.serving_cost(d, month)), 17, Palette.MUTED, grid)
-		_stepper(grid, d.id, _serving_labels, -STOCK_STEP, STOCK_STEP, func(id: String, delta: float):
-			_servings[id] = clampi(_servings[id] + int(delta), 0, 150))
+		_stepper(grid, d.id, _serving_labels, -1, 1, func(id: String, delta: float):
+			_servings[id] = clampi(_servings[id] + int(signf(delta)) * _qty_step, 0, 150))
 		_yesterday_cell(grid, d, prev)
 
 
@@ -498,7 +528,7 @@ func _restock_from_yesterday() -> void:
 		if y.stocked == 0:
 			continue
 		var target: float = y.sold * 1.1 if y.sold < y.stocked else y.stocked * 1.3
-		_servings[id] = int(ceil(target / STOCK_STEP)) * STOCK_STEP
+		_servings[id] = int(ceil(target / _qty_step)) * _qty_step
 	_refresh_plan()
 
 
@@ -511,7 +541,7 @@ func _current_plan() -> Dictionary:
 	for t in Content.treats:
 		if _servings[t.id] > 0:
 			treats.append({"item_id": t.id, "price": _prices[t.id], "servings": _servings[t.id]})
-	return {"location_id": _plan_loc, "offers": offers, "treats": treats}
+	return {"location_id": _plan_loc, "offers": offers, "treats": treats, "tip_mode": _tip_mode}
 
 
 func _refresh_plan() -> void:
@@ -610,7 +640,7 @@ func _next_customer() -> void:
 		return
 	var c := _customer
 	_arrived = false
-	_person = _scene.spawn_customer(c.name, c.gen_id, _gen_color(c.gen_id))
+	_person = _scene.spawn_customer(c.name, c.gen_id, c.gender, _gen_color(c.gen_id))
 	_person.arrived.connect(_on_arrived.bind(c), CONNECT_ONE_SHOT)
 	_build_order_panel()
 
@@ -693,6 +723,8 @@ func _serve(drink_id: String, engage: bool) -> void:
 	if _resolved or not _arrived or _customer.is_empty():
 		return  # already served (e.g. a double press) or still walking up
 	var c := _customer
+	if c.get("insists", false) and drink_id != c.craving:
+		return  # they already said no to a suggestion; only their order is on the table
 	var out := _shift.serve(c, drink_id, engage)
 	var drink := Content.drink(drink_id)
 	if out.declined:
@@ -709,9 +741,13 @@ func _serve(drink_id: String, engage: bool) -> void:
 		return
 	var tip_text := " + %s tip" % _money(out.tip) if out.tip > 0.0 else ""
 	var chat_text := " (chatted, which took a while)" if out.engaged else ""
+	var annoyed_text := " The tip screen annoyed them." if out.annoyed else ""
 	_resolved = true
-	_feed = "Sold %s to %s: %s%s%s." % [drink.name, c.name, _money(out.price), tip_text, chat_text]
+	_feed = "Sold %s to %s: %s%s%s.%s" % [drink.name, c.name, _money(out.price), tip_text, chat_text, annoyed_text]
 	_person.clear_say()
+	if out.annoyed:
+		var gripes: Array = Content.dialogue[c.gen_id].tip_screen
+		_person.say(gripes[hash(c.name + str(_shift.result.served)) % gripes.size()], 2.2)
 	_scene.hand_over(_person, _cup_color(drink_id))
 	_scene.float_text("+%s%s" % [_money(out.price), tip_text.replace(" + ", " +").replace(" tip", " tip")], Palette.GOOD)
 	_update_header()
@@ -795,7 +831,9 @@ func _upsell(treat_id: String) -> void:
 
 func _show_results() -> void:
 	_reset()
-	_autosave()
+	_saved_today = false
+	if GameState.is_game_over():
+		GameState.delete_save()  # the run is over; don't offer to continue it
 	var r := _last_result
 	var prev := {}
 	if GameState.history.size() >= 2:
@@ -828,6 +866,10 @@ func _show_results() -> void:
 			text += "   %s" % ("▲ +%d" % diff if diff > 0 else ("▼ %d" % diff if diff < 0 else "="))
 		_label(text, 17, Palette.TEXT, sales)
 	_label("Served %d of %d who came by (%s)" % [shift.served, shift.arrivals, "hands-on" if r.mode == "hands-on" else "breezed through"], 16, Palette.MUTED, sales)
+	if r.get("tip_mode", "jar") == "screen":
+		_label("Tip screen: %d of %d tipped · %d annoyed (reputation %+.2f)" % [shift.tipped, shift.served, shift.tip_annoyed, r.rep_change], 16, Palette.WARM if shift.tip_annoyed > 0 else Palette.MUTED, sales)
+	else:
+		_label("Tip jar: %d of %d tipped (reputation %+.2f)" % [shift.tipped, shift.served, r.rep_change], 16, Palette.MUTED, sales)
 	if shift.treat_revenue > 0.0:
 		_label("Add-ons brought in %s (%d offers, %d turned down)" % [_money(shift.treat_revenue), shift.upsell_attempts, shift.upsell_declined], 16, Palette.MUTED, sales)
 	if shift.lost_to_stockout > 0:
@@ -876,9 +918,16 @@ func _show_results() -> void:
 	_chip(Content.generations[who.generation].label, _gen_color(who.generation), qhead)
 	_label("“%s”" % q.line, 18, Palette.TEXT, qc)
 
-	if not GameState.is_game_over():
-		_label("Progress saved.", 14, Palette.MUTED, _footer)
 	var row := _foot_row()
+	if not GameState.is_game_over():
+		var save_btn := _button("Save progress", row, func(): pass)
+		save_btn.pressed.connect(func():
+			if _save_progress():
+				_saved_today = true
+				save_btn.text = "Saved"
+				save_btn.disabled = true
+			else:
+				save_btn.text = "Couldn't save, try again")
 	if GameState.is_game_over():
 		_button("The truck is out of gas money. Start over", row, func():
 			_difficulty = "easy"

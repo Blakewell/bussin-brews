@@ -15,6 +15,8 @@ func _init() -> void:
 	_check_upsell(content)
 	_check_difficulty(content)
 	_check_gen_alpha(content)
+	_check_people(content)
+	_check_tips(content)
 	print("")
 	print("FAILED: %d" % failures if failures > 0 else "All sim tests passed")
 	quit(1 if failures > 0 else 0)
@@ -315,3 +317,71 @@ func _check_gen_alpha(c) -> void:
 		ok(loc.generations.has("gen_alpha"), "%s has a Gen Alpha share" % loc.name)
 	for t in c.treats:
 		ok(t.gen_fit.has("gen_alpha"), "%s has a Gen Alpha taste" % t.name)
+
+
+func _check_people(c) -> void:
+	print("People and dialogue")
+	# Every customer's name matches their gender, and looks follow it.
+	var bad_names := 0
+	var beard_women := 0
+	var bun_men := 0
+	var seen := 0
+	for seed_value in 30:
+		for loc in ["school", "beach", "office"]:
+			var rng := RandomNumberGenerator.new()
+			rng.seed = seed_value
+			var sh := Shift.new(_offers(c), c.location(loc), c.weather.types["sunny"], 1.0, 1.0, rng, c.generations)
+			var cu := sh.next_customer()
+			while not cu.is_empty():
+				seen += 1
+				if not c.generations[cu.gen_id].names[cu.gender].has(cu.name):
+					bad_names += 1
+				if cu.gender == "female" and Person.has_beard(cu.gen_id, cu.gender):
+					beard_women += 1
+				if cu.gender == "male" and Person.has_bun(cu.gen_id, cu.gender):
+					bun_men += 1
+				sh.serve(cu, cu.craving, true)
+				cu = sh.next_customer()
+	ok(seen > 1000 and bad_names == 0, "all %d customers have a name that matches their gender" % seen)
+	ok(beard_women == 0 and bun_men == 0, "no women with beards, no men with buns")
+	ok(Person.has_beard("gen_x", "male") and Person.has_bun("millennial", "female"), "Gen X men still get beards, millennial women still get buns")
+	for ch in c.characters:
+		ok(ch.has("gender") and c.generations[ch.generation].names.has(ch.gender), "%s has a gender" % ch.name)
+	# At least 10 lines per generation for every situation.
+	var short := []
+	for gen_id in c.generations:
+		for cat in ["order", "decline", "chat", "great", "ok", "bad", "upsell_yes", "upsell_no", "tip_screen"]:
+			var n: int = c.dialogue[gen_id].get(cat, []).size()
+			if n < 10:
+				short.append("%s/%s=%d" % [gen_id, cat, n])
+	ok(short.is_empty(), "every generation has 10+ lines for every situation %s" % [short])
+
+
+func _check_tips(c) -> void:
+	print("Tip jar vs tip screen")
+	var jar_tips := 0.0
+	var screen_tips := 0.0
+	var jar_annoyed := 0
+	var screen_annoyed := 0
+	var served := 0
+	for seed_value in 40:
+		for mode in ["jar", "screen"]:
+			var rng := RandomNumberGenerator.new()
+			rng.seed = seed_value
+			var sh := Shift.new(_offers(c, 1.0, 100), c.location("beach"), c.weather.types["sunny"], 1.0, 1.0, rng, c.generations)
+			sh.tip_mode = mode
+			sh.auto_finish()
+			if mode == "jar":
+				jar_tips += sh.result.tips
+				jar_annoyed += sh.result.tip_annoyed
+			else:
+				screen_tips += sh.result.tips
+				screen_annoyed += sh.result.tip_annoyed
+				served += sh.result.served
+	var lift := screen_tips / maxf(jar_tips, 0.01)
+	ok(lift > 1.0 and lift < 1.4, "the tip screen brings in more tips than a jar (x%.2f; research says about x1.12)" % lift)
+	ok(jar_annoyed == 0 and screen_annoyed > 0, "only the tip screen annoys people (%d of %d, %.0f%%)" % [screen_annoyed, served, 100.0 * screen_annoyed / maxf(served, 1)])
+	var annoy := {}
+	for g in c.generations:
+		annoy[g] = c.generations[g].screen_annoyed
+	ok(annoy.gen_x > annoy.gen_z and annoy.boomer > annoy.millennial, "older customers are more annoyed by tip screens (Bankrate 2025)")

@@ -16,6 +16,7 @@ var loc_id := "school"
 var weather_id := "sunny"
 var progress := 0.15       ## 0 = dawn, 0.5 = midday, 1 = dusk
 var ambient := false       ## when true, strangers stroll by on their own
+var tip_mode := "jar"      ## draws a tip jar or a checkout tablet on the counter
 
 var _world: Node2D
 var _bg: _Layer
@@ -56,7 +57,7 @@ func _ready() -> void:
 	_world.add_child(_people)
 	_fx = _layer(_draw_fx)
 
-	_barista = Person.new().setup("millennial", 7)
+	_barista = Person.new().setup("millennial", 7, "female")
 	_barista.is_barista = true
 	_barista.facing = -1.0
 	_barista.scale = Vector2(0.85, 0.85)
@@ -108,6 +109,12 @@ func set_weather(id: String) -> void:
 	_bg.queue_redraw()
 
 
+func set_tip_mode(mode: String) -> void:
+	tip_mode = mode
+	if _truck_front != null:
+		_truck_front.queue_redraw()
+
+
 func set_progress(p: float) -> void:
 	progress = clampf(p, 0.0, 1.0)
 	_bg.queue_redraw()
@@ -116,9 +123,9 @@ func set_progress(p: float) -> void:
 # --- people ----------------------------------------------------------------
 
 ## A customer walks up to the window. Returns the Person; `arrived` fires when they're there.
-func spawn_customer(name: String, gen_id: String, color: Color) -> Person:
+func spawn_customer(name: String, gen_id: String, gender: String, color: Color) -> Person:
 	var from_left := _rng.randf() < 0.5
-	var p := Person.new().setup(gen_id, hash(name) + _rng.randi())
+	var p := Person.new().setup(gen_id, hash(name) + _rng.randi(), gender)
 	p.scale = Vector2(0.95, 0.95)
 	p.position = Vector2(_window_x() + (-1.0 if from_left else 1.0) * 420.0, LANE_Y)
 	p.fade_in()
@@ -404,6 +411,17 @@ func _draw_truck_front(c: CanvasItem) -> void:
 		var x1 := aw_x + aw_w * float(i + 1) / stripes
 		var col := Palette.ACCENT.lerp(Palette.BG, 0.25) if i % 2 == 0 else Palette.PANEL
 		c.draw_colored_polygon(PackedVector2Array([Vector2(x0, 152), Vector2(x1, 152), Vector2(x1 + 3.0, 172), Vector2(x0 - 3.0, 172)]), col)
+	# Tip jar or checkout tablet on the counter.
+	if tip_mode == "screen":
+		_rr(c, Rect2(x - 46, 206, 22, 18), Palette.TEXT.lerp(Palette.BG, 0.15), 3)
+		_rr(c, Rect2(x - 44, 208, 18, 13), Color("BFD6E4"), 2)
+		c.draw_string(ThemeDB.fallback_font, Vector2(x - 44, 218), "%", HORIZONTAL_ALIGNMENT_CENTER, 18, 10, Palette.TEXT)
+		c.draw_rect(Rect2(x - 37, 224, 4, 5), Palette.TEXT.lerp(Palette.BG, 0.2))
+	else:
+		_rr(c, Rect2(x - 46, 204, 20, 25), Color(0.85, 0.93, 0.97, 0.75), 4)
+		for coin in [Vector2(x - 40, 224), Vector2(x - 33, 222), Vector2(x - 37, 218)]:
+			c.draw_circle(coin, 3.0, Color("E8C870"))
+		c.draw_rect(Rect2(x - 47, 202, 22, 3), Palette.TEXT.lerp(Palette.BG, 0.3))
 	# Wheels.
 	for wx in [x - 126.0, x + 128.0]:
 		c.draw_circle(Vector2(wx, TRUCK_BOTTOM), 26.0, Palette.TEXT.lerp(Palette.BG, 0.2))

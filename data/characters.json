@@ -19,7 +19,8 @@
           "You ran out of the good stuff. That's negative aura, no cap.",
           "That line was so Ohio. I missed recess for this."
         ]
-      }
+      },
+      "gender": "female"
     },
     {
       "id": "kayden",
@@ -40,7 +41,8 @@
           "Bro. The line was so long I aged a year.",
           "Sold out?? That's so not it."
         ]
-      }
+      },
+      "gender": "male"
     },
     {
       "id": "priya",
@@ -60,7 +62,8 @@
           "I can't even with today. Let's regroup over avocado toast.",
           "Rough one. We need a new plan, chief."
         ]
-      }
+      },
+      "gender": "female"
     },
     {
       "id": "dale",
@@ -80,7 +83,8 @@
           "Ran out of the good stuff, huh? Typical.",
           "I waited twenty minutes for that. As if."
         ]
-      }
+      },
+      "gender": "male"
     },
     {
       "id": "nana_deb",
@@ -100,7 +104,8 @@
           "Oh my stars, such a long wait! In my day we had service with a smile.",
           "No more hot drinks? Well, I never!"
         ]
-      }
+      },
+      "gender": "female"
     }
   ]
 }

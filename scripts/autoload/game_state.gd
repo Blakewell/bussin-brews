@@ -139,6 +139,7 @@ func begin_shift(plan: Dictionary) -> Shift:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = run_seed + day * 104729
 	var shift := Shift.new(offers, loc, weather, traffic_mult(loc.id), reputation, rng, Content.generations, treat_offers)
+	shift.tip_mode = plan.get("tip_mode", "jar")
 	_current = {
 		"shift": shift, "loc": loc, "drink_plan": drink_plan, "stock_cost": stock_cost,
 		"trip": econ.trip_cost(loc, month()), "permit": float(loc.permit), "rng": rng,
@@ -157,7 +158,10 @@ func finish_shift(mode: String = "auto") -> Dictionary:
 
 	var attempted: int = sh.served + sh.lost_to_stockout + sh.lost_to_line + sh.declined
 	var satisfaction := float(sh.served) / attempted if attempted > 0 else 1.0
-	reputation = clampf(reputation + (satisfaction - 0.8) * 0.1, 0.7, 1.5)
+	# A checkout tip screen annoys some customers, and word gets around.
+	var annoyed_share: float = float(sh.tip_annoyed) / sh.served if sh.served > 0 else 0.0
+	var rep_before := reputation
+	reputation = clampf(reputation + (satisfaction - 0.8) * 0.1 - Demand.TIP_SCREEN_REP_HIT * annoyed_share, 0.7, 1.5)
 
 	var drinks := {}
 	for id in _current.drink_plan:
@@ -172,7 +176,8 @@ func finish_shift(mode: String = "auto") -> Dictionary:
 		"day": day, "location_id": loc.id, "weather_id": weather_id, "month": month(), "mode": mode,
 		"shift": sh, "drinks": drinks, "trip_cost": _current.trip, "permit": _current.permit,
 		"stock_cost": _current.stock_cost, "costs": costs, "revenue": sh.revenue, "tips": sh.tips,
-		"profit": profit, "cash": cash, "reputation": reputation,
+		"profit": profit, "cash": cash, "reputation": reputation, "rep_change": reputation - rep_before,
+		"tip_mode": shift.tip_mode, "tip_annoyed": sh.tip_annoyed,
 		"quip": _pick_quip(profit, satisfaction, _current.rng),
 		"chatter": _pick_chatter(sh, _current.rng),
 	}
@@ -221,6 +226,8 @@ func insights(r: Dictionary) -> Array:
 			out.append("%s only sold %d of %d, about %s of ingredients wasted. Stock fewer, or try another spot." % [drink.name, d.sold, d.stocked, "$%.0f" % wasted])
 	if best_id != "":
 		out.push_front("%s was your money-maker (%s profit)." % [Content.item(best_id).name, "$%.0f" % best_profit])
+	if r.get("tip_mode", "jar") == "screen" and r.shift.tip_annoyed >= 3:
+		out.append("%d people were annoyed by the tip screen, which hurt your reputation. A tip jar earns less but keeps folks happy." % r.shift.tip_annoyed)
 	if r.shift.lost_to_line > 3:
 		out.append("%d people gave up on the line. Chatty customers and add-on offers eat up time." % r.shift.lost_to_line)
 	return out.slice(0, 4)
@@ -237,7 +244,8 @@ func _tier(profit: float, satisfaction: float) -> String:
 func _pick_quip(profit: float, satisfaction: float, rng: RandomNumberGenerator) -> Dictionary:
 	var tier := _tier(profit, satisfaction)
 	var who: Dictionary = Content.characters[rng.randi() % Content.characters.size()]
-	var pool: Array = who.lines[tier]
+	# Their own lines plus their generation's, so the quote varies day to day.
+	var pool: Array = who.lines[tier] + Content.dialogue[who.generation][tier]
 	return {"character": who, "tier": tier, "line": pool[rng.randi() % pool.size()]}
 
 

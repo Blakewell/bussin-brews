@@ -27,6 +27,13 @@ Design estimates (no survey data found): they rarely tip (`tip_chance` 3%), favo
 
 **Slang** (kept PG): aura, aura points ("+1000 aura", "-1000 aura"), aura farming, 6-7 (Dictionary.com's 2025 word of the year), sigma, rizz, mogging, plus fanum tax, Ohio and unc. Nova, nicknamed "Aura", is the recurring Gen Alpha regular.
 
+## Tip screens
+| | Gen Alpha | Gen Z | Millennial | Gen X | Boomer |
+|---|---|---|---|---|---|
+| Annoyed by pre-entered tip screens | ~20% (estimate) | 27% | 35% | 45% | 44% |
+
+From Bankrate's 2025 survey: 2 in 5 Americans are annoyed by pre-entered tip screens and about a quarter tip less or not at all because of them; separately, digital prompts raise gratuities about 12% overall, and café tips average about 15% when given. `screen_tip_chance` in `data/generations.json` is calibrated from these so total tips run about 12% above a tip jar.
+
 ## Estimates to know about
 - Gen Z counter-service tip rate (14%) is not published in the sources I found. I scaled the boomer figure (26%) by the Gen Z/boomer sit-down ratio (45/84).
 - `tip_pct` for counter service is a modeled estimate scaled from the sit-down 20%+ shares.
@@ -43,6 +50,7 @@ Each generation, and each named character, speaks in their own era's slang (`dat
 - Tipping by generation (counter service, sit-down, 20%+ shares): [Fox News on a millennial tipping survey](https://www.foxnews.com/food-drink/millennials-are-the-worst-tippers-new-survey-shows.amp), [Newsweek](https://www.newsweek.com/millennials-are-the-most-anti-tipping-generation-11915915), and [Fox 9 on the 2025 annual tipping poll](https://www.fox9.com/news/tipping-out-of-control-survey-2025)
 - Beverage-only purchase frequency: [Restaurant Dive on NRA beverage research](https://www.restaurantdive.com/news/nra-dirty-soda-coffee-beverage-only-gen-z-occasions/828942/)
 - Coffee habits by generation: [Coffee BI](https://coffeebi.com/?p=295401), [GlobalData](https://www.globaldata.com/media/consumer/rtd-iced-coffee-demand-driven-millennials-gen-z-third-say-high-coffee-spenders-says-globaldata-2/)
+- Tip screens: [Bankrate 2025 survey via Fox](https://www.fox35orlando.com/news/tipping-out-of-control-survey-2025), [Axis Intelligence on digital tipping data](https://axis-intelligence.com/tip-screen-digital-tipping-latest-2025-data/), [Cheapism on coffee tipping](https://www.cheapism.com/tipping-culture-20-percent-coffee/)
 - Gen Alpha spending: [eMarketer](https://www.emarketer.com/content/gen-alpha-reshaping-household-spending-habits), [Franchising.com on $28B purchasing power](https://australia.franchising.com/articles/20251022_gen_alpha_purchasing_power_tops_28_billion.html), [PwC Generation Alpha Survey 2026](https://www.pwc.com/us/en/industries/consumer-markets/library/gen-alpha-survey-report.html)
 - Gen Alpha slang: [Mental Floss, top Gen Alpha slang 2026](https://www.mentalfloss.com/language/slang/top-gen-alpha-slang-2026), [Euronews, most-searched Gen Alpha slang of 2026](https://www.euronews.com/2026/09/28/from-chud-to-bop-most-searched-gen-alpha-slang-terms-of-2026-so-far-revealed)
 - Generational language: [UCLA Languaged Life](https://languagedlife.ucla.edu/sociolinguistics/from-slay-to-on-fleek-linguistic-features-of-millennial-and-gen-z-internet-communication/)

@@ -33,6 +33,11 @@ Everything asked for so far, with where it stands. **Status:** Done, Partial (so
 | R23 | It must play from the Godot editor's Play button | Done | The editor halts on any script error, so the test suites check for zero `SCRIPT ERROR` lines |
 | R24 | Public GitHub repo | Done | https://github.com/Blakewell/bussin-brews |
 | R25 | Gen Alpha kids, using current Gen Alpha slang like "aura" | Done | Fifth generation; mostly at the school line; Nova "Aura" is a regular. See [GENERATIONS.md](GENERATIONS.md#gen-alpha) |
+| R26 | Looks match the person: no beards on women, no buns on men | Done | Each customer has a gender with a matching name; beards are Gen X men only, buns millennial women only. Tested over 6,000+ customers |
+| R27 | A Save button after each day | Done | "Save progress" on the wrap-up; saving no longer happens automatically |
+| R28 | Quantities go by 1, 3 or 5 from a dropdown, default 5 | Done | "Quantity step" on the plan screen; applies to servings |
+| R29 | At least 10 lines per generation, for variety | Done | 10+ lines for every situation (order, decline, chat, great, ok, bad, add-on yes/no, tip screen): 450 lines |
+| R30 | Choose between a tip jar and a checkout tip screen | Done | See [Tips](#tips-jar-or-checkout-screen) |
 
 ## Inspiration and tone
 **Tiny Bookshop**: a calm daily rhythm of choosing a spot, setting up, serving and winding down; a town of recurring locals; weather and events that nudge decisions without punishing you. Bussin Brews adds generational slang, real-world prices and (later) staff drama. Those should add spice without breaking the cozy feel: setbacks are recoverable and failure is gentle.
@@ -42,10 +47,10 @@ Easy starts with $1,000, Medium $500, Hard $100. Easy is the default. Default st
 
 ## Daily loop (as built)
 1. **Briefing:** date, weather, gas price and its change, headlines, and yesterday's result with lessons.
-2. **Plan:** pick a location (left column) and set prices and servings in the Drinks and Baked goods tabs (right). The upfront cost (gas, permit, stock) and cash-after update live.
+2. **Plan:** pick a location (left column), choose the quantity step (by 1, 3 or 5) and the tip setup, and set prices and servings in the Drinks and Baked goods tabs (right). The upfront cost (gas, permit, stock) and cash-after update live.
 3. **Service:** serve customers one by one, or breeze through the day on autopilot.
 4. **Wrap-up:** sales, tips, costs and profit against yesterday, per-item results, lessons, and a quote from a regular.
-5. **Autosave**, then the next day.
+5. **Save progress** (button), then the next day.
 
 ## Demand model
 Each shift has a number of arrivals:
@@ -79,9 +84,17 @@ After a drink sells you can offer one treat from the bakery case. Each treat sho
 ## Bakery case (upsells)
 Fudge brownie, frosted cupcake, protein ball, chocolate chip cookie, blueberry muffin (`data/treats.json`). Acceptance depends on generation taste (muffins and cookies skew older, cupcakes and brownies younger, kids love cupcakes and skip protein balls, protein balls skew millennial), how well it pairs with the drink they bought (cookies with hot drinks, protein balls with iced coffee), and price. These preferences are design estimates, not survey data. Unsold stock is wasted at the end of the day.
 
+## Tips: jar or checkout screen
+Chosen on the plan screen ("Tips"); the truck shows a tip jar or a card tablet on the counter.
+- **Tip jar (default):** people tip on their own, at each generation's real counter-tipping rate. Coins and bills.
+- **Tip screen at checkout:** the "feels like you have to tip" screen. Per customer it brings in about **12% more** in tips (calibrated to the finding that digital prompts raise gratuities about 12%; café tips average ~15% when given). But it **annoys** people at real rates by generation (Bankrate 2025: Gen Z 27%, millennials 35%, Gen X 45%, boomers 44%; Gen Alpha 20% is an estimate). Annoyed customers tip half as often, at 10%, grumble about it in a bubble, and cost a little reputation.
+- **The trade-off today:** tips are small next to drink sales (~$10 vs ~$270 a day), so over a week the reputation hit usually outweighs the extra tips and the jar wins on cash. That's realistic: tips mostly belong to staff. Once the staff system exists, tips will fund staff pay and morale, which makes the screen more tempting.
+- Tips use their own random dice, so switching tip mode never changes which customers show up.
+
 ## Wrap-up and day-over-day comparison
 - **Wrap-up:** a Today / Yesterday / Change table for sales, tips, costs and profit (costs going up shows as a warning), per-item sold vs stocked with ▲/▼ against yesterday, add-on results, and what was lost to stockouts, the line, or declined pitches.
 - **Lessons:** the best money-maker, items that sold out, and items that mostly went to waste.
+- **Tips line:** how many tipped, and with the tip screen how many were annoyed and the reputation change.
 - **Plan screen:** each item shows how it did yesterday, each location shows its last result and that day's weather, and "Restock from yesterday's sales" sizes stock to what sold.
 - **Briefing:** yesterday's location, weather, profit and lessons.
 
@@ -109,6 +122,7 @@ Five generations (Gen Alpha, Gen Z, millennial, Gen X, boomer), each with buying
 ## Recurring characters
 **Built** (in `data/characters.json`; they currently appear only in the end-of-day quote):
 - **Nova "Aura"** (Gen Alpha): rates everything in aura points and yells "six seven".
+Each regular's end-of-day quote is drawn from their own lines plus their generation's, so it varies day to day.
 - **Kayden "Mid"** (Gen Z): rates everything "mid" until you earn a "bussin".
 - **Priya** (millennial): overachiever barista who wants a raise.
 - **Dale** (Gen X): unimpressed regular with a story about 1994.
@@ -132,13 +146,21 @@ Not built yet. The plan:
 - Time of day: the sky moves from dawn to midday to dusk as the shift progresses.
 - The truck with its awning, string lights, "BUSSIN BREWS" sign and a barista in the window.
 
-**People** (`scripts/ui/person.gd`) are flat-style figures who walk up, order in a speech bubble, take a cup, and leave holding it. Non-buyers walk past. Each generation has a look: Gen Alpha kid-sized with a backpack, backwards cap and light-up sneakers; Gen Z beanie and headphones, millennial glasses, bun and tote, Gen X flannel and beard, boomer gray hair, visor and cane.
+**People** (`scripts/ui/person.gd`) are flat-style figures who walk up, order in a speech bubble, take a cup, and leave holding it. Non-buyers walk past. Looks follow generation and gender (every customer's name matches their gender):
+
+| Generation | Women | Men |
+|---|---|---|
+| Gen Alpha (kid-sized, backpack, light-up sneakers) | ponytail and bow | backwards cap |
+| Gen Z (hoodie, beanie, headphones) | long hair under the beanie | short hair |
+| Millennial (glasses) | bun, tote bag | short hair |
+| Gen X (flannel) | shoulder-length hair | beard |
+| Boomer (cane, sometimes a visor) | curly gray hair | thinning gray hair, mustache |
 
 ## Art
 All art is currently drawn from shapes in code, as a stand-in. Swapping in real art means replacing the draw calls in `person.gd` and `truck_scene.gd` with sprites; game logic doesn't change. Options: free CC0 packs (e.g. Kenney), cheap itch.io packs, or a commissioned illustrator for a consistent look. AI image tools are fine for concept art; check their licensing before shipping anything made with them.
 
 ## Saving
-One save slot, written at the end of each day (`user://savegame.json`), plus the UI's chosen spot, prices and stock. Today's weather and headlines are rebuilt from the run's seed, so a loaded day matches the one you left. Writes go to a temp file first, then get renamed into place. A damaged or old-version save is ignored. "New game" asks before erasing the save, and losing a run deletes it.
+One save slot (`user://savegame.json`), written when you press **Save progress** on the wrap-up. It stores the run plus the UI's chosen spot, prices, stock, quantity step and tip setup. If you don't save, quitting and continuing picks up from the last day you saved. Today's weather and headlines are rebuilt from the run's seed, so a loaded day matches the one you left. Writes go to a temp file first, then get renamed into place. A damaged or old-version save is ignored. "New game" asks before erasing the save, and losing a run deletes it.
 
 ## AI dialogue (planned)
 **Goal:** more realistic turn-by-turn conversations without running costs for you, since others may play.
@@ -160,8 +182,8 @@ The game always falls back to the shipped library, so it never breaks. A game mu
 ## Testing
 | Suite | Covers |
 |---|---|
-| `tests/run_sim_tests.gd` (headless) | CPI, economy, demand, generations, upsells, declined pitches, difficulty, event timing |
-| `tests/save_test.tscn` (headless) | Save round trip, bad files, Continue flow |
+| `tests/run_sim_tests.gd` (headless) | CPI, economy, demand, generations, upsells, declined pitches, difficulty, event timing, names and looks by gender, dialogue counts, tip jar vs screen |
+| `tests/save_test.tscn` (headless) | Save round trip, bad files, the Save button and Continue flow, tip modes and reputation, quantity step |
 | `tests/playthrough.tscn` | A full day clicked with real mouse events |
 | `tests/sweep.tscn` | Every location × weather × time of day, plus 12 random-seed games |
 | `tests/soak.tscn` | 40 seconds on a banner screen (catches errors that need time to appear) |

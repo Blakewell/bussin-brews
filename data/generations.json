@@ -17,14 +17,26 @@
       "chat_chance": 0.25,
       "chat_slots": 0.5,
       "color": "F3E3A3",
-      "names": [
-        "Nova",
-        "Mateo",
-        "Luna",
-        "Theo",
-        "Aria",
-        "Leo"
-      ]
+      "names": {
+        "female": [
+          "Nova",
+          "Luna",
+          "Aria",
+          "Isla",
+          "Ava",
+          "Harper"
+        ],
+        "male": [
+          "Mateo",
+          "Theo",
+          "Leo",
+          "Liam",
+          "Asher",
+          "Owen"
+        ]
+      },
+      "screen_annoyed": 0.2,
+      "screen_tip_chance": 0.026
     },
     "gen_z": {
       "label": "Gen Z",
@@ -40,15 +52,27 @@
       "tip_pct": 0.12,
       "chat_chance": 0.08,
       "chat_slots": 1.0,
-      "names": [
-        "Zoe",
-        "Jayden",
-        "Mia",
-        "Kai",
-        "Aaliyah",
-        "Luca"
-      ],
-      "color": "C9BFE0"
+      "color": "C9BFE0",
+      "names": {
+        "female": [
+          "Zoe",
+          "Aaliyah",
+          "Madison",
+          "Chloe",
+          "Kaylee",
+          "Mia"
+        ],
+        "male": [
+          "Jayden",
+          "Luca",
+          "Brayden",
+          "Tyson",
+          "Caleb",
+          "Ethan"
+        ]
+      },
+      "screen_annoyed": 0.27,
+      "screen_tip_chance": 0.155
     },
     "millennial": {
       "label": "Millennial",
@@ -64,15 +88,27 @@
       "tip_pct": 0.14,
       "chat_chance": 0.1,
       "chat_slots": 1.0,
-      "names": [
-        "Ashley",
-        "Josh",
-        "Brittany",
-        "Tyler",
-        "Priyanka",
-        "Matt"
-      ],
-      "color": "A8C3A0"
+      "color": "A8C3A0",
+      "names": {
+        "female": [
+          "Ashley",
+          "Brittany",
+          "Priyanka",
+          "Jessica",
+          "Amanda",
+          "Megan"
+        ],
+        "male": [
+          "Josh",
+          "Tyler",
+          "Matt",
+          "Brandon",
+          "Justin",
+          "Kyle"
+        ]
+      },
+      "screen_annoyed": 0.35,
+      "screen_tip_chance": 0.257
     },
     "gen_x": {
       "label": "Gen X",
@@ -88,15 +124,27 @@
       "tip_pct": 0.16,
       "chat_chance": 0.2,
       "chat_slots": 1.0,
-      "names": [
-        "Dale",
-        "Lisa",
-        "Mike",
-        "Jennifer",
-        "Scott",
-        "Tracy"
-      ],
-      "color": "9DB7C9"
+      "color": "9DB7C9",
+      "names": {
+        "female": [
+          "Lisa",
+          "Jennifer",
+          "Tracy",
+          "Kim",
+          "Stacy",
+          "Michelle"
+        ],
+        "male": [
+          "Dale",
+          "Mike",
+          "Scott",
+          "Todd",
+          "Troy",
+          "Jeff"
+        ]
+      },
+      "screen_annoyed": 0.45,
+      "screen_tip_chance": 0.361
     },
     "boomer": {
       "label": "Boomer",
@@ -112,15 +160,27 @@
       "tip_pct": 0.18,
       "chat_chance": 0.45,
       "chat_slots": 2.0,
-      "names": [
-        "Linda",
-        "Gary",
-        "Barbara",
-        "Walt",
-        "Carol",
-        "Ron"
-      ],
-      "color": "F2C9A5"
+      "color": "F2C9A5",
+      "names": {
+        "female": [
+          "Linda",
+          "Barbara",
+          "Carol",
+          "Debbie",
+          "Sharon",
+          "Patty"
+        ],
+        "male": [
+          "Gary",
+          "Walt",
+          "Ron",
+          "Larry",
+          "Earl",
+          "Dwayne"
+        ]
+      },
+      "screen_annoyed": 0.44,
+      "screen_tip_chance": 0.556
     }
   }
 }

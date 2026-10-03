@@ -86,23 +86,15 @@ func _declined_suggestion() -> void:
 	print("Declined suggestion")
 	await _start("easy")
 	var c: Dictionary = main._customer
-	var tried := 0
-	# Pitch their least-liked drink until someone says no.
-	while tried < 12:
-		var lowest := ""
-		var low := INF
-		for id in c.weights:
-			if id != c.craving and c.weights[id] < low and main._shift.stock[id] > 0:
-				low = c.weights[id]
-				lowest = id
-		main._serve(lowest, true)
-		if c.get("insists", false):
+	# Make one drink something they'd never want, then pitch it.
+	var pitch := ""
+	for id in c.weights:
+		if id != c.craving and main._shift.stock[id] > 0:
+			pitch = id
 			break
-		tried += 1
-		await _wait(0.8)
-		await _wait_for_arrival()
-		c = main._customer
-	ok(c.get("insists", false), "found a customer who declined a suggestion")
+	c.weights[pitch] = 0.0
+	main._serve(pitch, true)
+	ok(c.get("insists", false) and main._shift.result.declined == 1, "they said no to the %s" % pitch)
 	var locked := 0
 	var open := 0
 	for b in main._action_buttons:
@@ -111,7 +103,8 @@ func _declined_suggestion() -> void:
 				locked += 1
 			else:
 				open += 1
-	ok(locked >= 4, "other suggestions are locked after the no (%d locked, %d open)" % [locked, open])
-	var serial: int = main._serial
+	ok(locked == 4 and open == 1, "other suggestions are locked after the no (%d locked, %d open)" % [locked, open])
+	main._serve(pitch, true)
+	ok(main._shift.result.declined == 1 and not c.has("sold_drink"), "pressing the locked drink again does nothing")
 	main._serve(c.craving, true)
-	ok(main._shift.result.served >= 1 and c.has("sold_drink"), "they still buy what they asked for")
+	ok(c.get("sold_drink", "") == c.craving, "they still buy what they asked for")
